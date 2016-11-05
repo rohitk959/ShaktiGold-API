@@ -1,0 +1,48 @@
+package com.rohitrk.shaktigold.util;
+
+import java.security.SecureRandom;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+
+public class PasswordUtil {
+	// The higher the number of iterations the more
+	// expensive computing the hash is for us and
+	// also for an attacker.
+	private static final int iterations = 20 * 1000;
+	private static final int saltLen = 32;
+	private static final int desiredKeyLen = 256;
+
+	/**
+	 * Computes a salted PBKDF2 hash of given plaintext password suitable for
+	 * storing in a database. Empty passwords are not supported.
+	 */
+	public static String getSalt() throws Exception {
+		byte[] salt = SecureRandom.getInstance("SHA1PRNG").generateSeed(saltLen);
+		return Base64.encodeBase64String(salt);
+	}
+
+	/**
+	 * Checks whether given plaintext password corresponds to a stored salted
+	 * hash of the password.
+	 */
+	public static boolean check(String password, String storedHash, String storedSalt) throws Exception {
+		if (StringUtils.isEmpty(storedHash) || StringUtils.isEmpty(storedSalt)) {
+			throw new IllegalStateException("Stored Password hash or Password Salt is missing");
+		}
+		String hashOfInput = hash(password, storedSalt);
+		return hashOfInput.equals(storedHash);
+	}
+
+	public static String hash(String password, String salt) throws Exception {
+		if (password == null || password.length() == 0)
+			throw new IllegalArgumentException("Empty passwords are not supported.");
+		SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		SecretKey key = f.generateSecret(new PBEKeySpec(password.toCharArray(), Base64.decodeBase64(salt), iterations, desiredKeyLen));
+		return Base64.encodeBase64String(key.getEncoded());
+	}
+}
