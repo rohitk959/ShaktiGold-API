@@ -30,7 +30,7 @@ public class UserController {
 	UserValidator validator = new UserValidator();
 	ObjectMapper jsonMapper = new ObjectMapper();
 	
-	@RequestMapping(value="/login", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/login.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public String enableLogin(@RequestBody UserAccountModel userAccount) {
 		String message = "Invalid Username or Password.";
 		String sessionId = null;
@@ -57,7 +57,7 @@ public class UserController {
 		return json;
 	}
 	
-	@RequestMapping(value="/registerUser", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/registerUser.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public String registerUser(@Valid @RequestBody UserAccountModel userAccount, BindingResult bindingResult) {
 		boolean userRegistration = false;
 		String message = null;
@@ -89,7 +89,7 @@ public class UserController {
 		return json;
 	}
 	
-	@RequestMapping(value="/updateProfile", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/updateProfile.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public String updateProfile(@Valid @RequestBody UserAccountModel userAccount, BindingResult bindingResult) {
 		boolean userProfileProfile = false;
 		
