@@ -2,14 +2,6 @@ package com.rohitrk.shaktigold.model;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.gson.annotations.Expose;
-
 public class CategoryModel {
 	//@Expose(serialize=false)
 	private String guid;

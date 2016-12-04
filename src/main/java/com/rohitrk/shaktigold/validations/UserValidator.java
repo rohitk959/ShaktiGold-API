@@ -20,7 +20,6 @@ public class UserValidator {
 	}
 
 	public boolean validateRegistrationFields(UserAccountModel userAccount) {
-		boolean result = true;
 		
 		
 		return false;
