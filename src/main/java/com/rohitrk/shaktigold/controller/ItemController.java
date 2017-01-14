@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rohitrk.shaktigold.model.CategoryModel;
 import com.rohitrk.shaktigold.model.ItemModel;
+import com.rohitrk.shaktigold.model.OrderModel;
 import com.rohitrk.shaktigold.model.SubCategoryProperty;
 import com.rohitrk.shaktigold.service.ItemService;
 import com.rohitrk.shaktigold.service.UserService;
@@ -30,7 +31,7 @@ import com.rohitrk.shaktigold.validations.UserValidator;
 public class ItemController {
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	ItemService itemService;
 
@@ -38,90 +39,90 @@ public class ItemController {
 	Map<String, Object> result = new HashMap<String, Object>();
 	UserValidator validator = new UserValidator();
 	ObjectMapper jsonMapper = new ObjectMapper();
-	
-	@RequestMapping(value="/registerCategory.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value = "/registerCategory.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String registerCategory(@Valid @RequestBody CategoryModel category, BindingResult bindingResult) {
 		boolean categoryAdded = false;
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(category.getEmail(), category.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(category.getEmail(), category.getSessionId())) {
 				categoryAdded = itemService.insertCategory(category);
 			}
 		}
-			
-		try{
-			if(categoryAdded) {
+
+		try {
+			if (categoryAdded) {
 				result.put("result", "SUCCESS");
 				result.put("message", "Category Successfully added.");
 				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			} else {
-				result.put("result", "FAILURE.");
+				result.put("result", "FAILURE");
 				result.put("message", "Failed to add category.");
 				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
+
 		return json;
 	}
 
-	@RequestMapping(value="/getAllCategory.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/getAllCategory.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String getCategory(@RequestBody CategoryModel category, BindingResult bindingResult) {
 		List<CategoryModel> categoryList = new ArrayList<CategoryModel>();
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(category.getEmail(), category.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(category.getEmail(), category.getSessionId())) {
 				categoryList = itemService.getAllCategory();
 			}
 		}
-		
-		try{
-			if(!categoryList.isEmpty()) {
+
+		try {
+			if (!categoryList.isEmpty()) {
 				JsonNode rootNode = jsonMapper.valueToTree(categoryList);
-				for(JsonNode node : rootNode ) {
+				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
-				        ObjectNode object = (ObjectNode) node;
-				        object.remove("guid");
-				        object.remove("recordActive");
-				        object.remove("sessionId");
-				        object.remove("email");
-				        object.remove("subcategory");
-				    }
+						ObjectNode object = (ObjectNode) node;
+						object.remove("guid");
+						object.remove("recordActive");
+						object.remove("sessionId");
+						object.remove("email");
+						object.remove("subcategory");
+					}
 				}
-				
+
 				result.put("result", "SUCCESS");
 				result.put("message", rootNode);
-				
+
 				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			} else {
-				result.put("result", "FAILURE.");
+				result.put("result", "FAILURE");
 				result.put("message", "Failed to get all categories.");
 				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
+
 		return json;
 	}
-	
-	@RequestMapping(value="/registerSubCategory.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value = "/registerSubCategory.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String registerSubCategory(@Valid @RequestBody CategoryModel category, BindingResult bindingResult) {
 		boolean subCategoryAdded = false;
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(category.getEmail(), category.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(category.getEmail(), category.getSessionId())) {
 				subCategoryAdded = itemService.insertSubCategory(category);
 			}
-			
-			try{
-				if(subCategoryAdded) {
+
+			try {
+				if (subCategoryAdded) {
 					result.put("result", "SUCCESS");
 					result.put("message", "Subcategory Successfully added.");
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				} else {
-					result.put("result", "FAILURE.");
+					result.put("result", "FAILURE");
 					result.put("message", "Failed to add category.");
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				}
@@ -129,73 +130,73 @@ public class ItemController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return json;
 	}
-	
-	@RequestMapping(value="/getAllSubCategory.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value = "/getAllSubCategory.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String getSubCategory(@Valid @RequestBody CategoryModel category, BindingResult bindingResult) {
 		CategoryModel subCategoryList = null;
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(category.getEmail(), category.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(category.getEmail(), category.getSessionId())) {
 				subCategoryList = itemService.getAllSubCategory(category);
 			}
 		}
-		
-		try{
-			if(null != subCategoryList && !subCategoryList.getSubcategory().isEmpty()) {
+
+		try {
+			if (null != subCategoryList && !subCategoryList.getSubcategory().isEmpty()) {
 				JsonNode rootNode = jsonMapper.valueToTree(subCategoryList.getSubcategory());
-				for(JsonNode node : rootNode ) {
+				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
-				        ObjectNode object = (ObjectNode) node;
-				        object.remove("guid");
-				        object.remove("recordActive");
-				        object.remove("properties");
-				    }
+						ObjectNode object = (ObjectNode) node;
+						object.remove("guid");
+						object.remove("recordActive");
+						object.remove("properties");
+					}
 				}
-				
+
 				result.put("result", "SUCCESS");
 				result.put("message", rootNode);
-				
+
 				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			} else {
-				result.put("result", "FAILURE.");
+				result.put("result", "FAILURE");
 				result.put("message", "Failed to get sub categories.");
 				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
+
 		return json;
 	}
-	
-	@RequestMapping(value="/getItemTemplate.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value = "/getItemTemplate.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String getItemTemplate(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
 		List<SubCategoryProperty> itemTemplate = null;
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
 				itemTemplate = itemService.getItemTemplate(item);
 			}
-			
-			try{
-				if(null != itemTemplate) {
+
+			try {
+				if (null != itemTemplate) {
 					JsonNode rootNode = jsonMapper.valueToTree(itemTemplate);
-					for(JsonNode node : rootNode ) {
+					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
-					        ObjectNode object = (ObjectNode) node;
-					        object.remove("guid");
-					        object.remove("subcategory_fk");
-					    }
+							ObjectNode object = (ObjectNode) node;
+							object.remove("guid");
+							object.remove("subcategory_fk");
+						}
 					}
-					
+
 					result.put("result", "SUCCESS");
 					result.put("message", rootNode);
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				} else {
-					result.put("result", "FAILURE.");
+					result.put("result", "FAILURE");
 					result.put("message", "Failed to get Item Template.");
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				}
@@ -203,26 +204,26 @@ public class ItemController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return json;
 	}
-	
-	@RequestMapping(value="/registerItem.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value = "/registerItem.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String insertItem(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
 		boolean itemAdded = false;
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
 				itemAdded = itemService.registerItem(item);
 			}
-			
-			try{
-				if(itemAdded) {
+
+			try {
+				if (itemAdded) {
 					result.put("result", "SUCCESS");
 					result.put("message", "Item Successfully added.");
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				} else {
-					result.put("result", "FAILURE.");
+					result.put("result", "FAILURE");
 					result.put("message", "Failed to add Item.");
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				}
@@ -230,44 +231,302 @@ public class ItemController {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return json;
 	}
-	
-	@RequestMapping(value="/getAllItem.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+
+	@RequestMapping(value = "/getAllItem.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String getAllItems(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
 		List<ItemModel> itemList = new ArrayList<ItemModel>();
-		
-		if(!bindingResult.hasErrors()) {
-			if(userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
 				itemList = itemService.getAllItems(item);
 			}
-			
-			try{
-				if(null != itemList && !itemList.isEmpty()) {
+
+			try {
+				if (null != itemList && !itemList.isEmpty()) {
 					JsonNode rootNode = jsonMapper.valueToTree(itemList);
-					for(JsonNode node : rootNode ) {
+					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
-					        ObjectNode object = (ObjectNode) node;
-					        object.remove("guid");
-					        object.remove("email");
-					        object.remove("sessionId");
-					        object.remove("categoryName");
-					        object.remove("subcategoryName");
-					        object.remove("recordActive");
-					        object.remove("itemProperty");
-					        object.remove("limit");
-					        object.remove("offset");
-					        
-					    }
+							ObjectNode object = (ObjectNode) node;
+							object.remove("guid");
+							object.remove("email");
+							object.remove("sessionId");
+							object.remove("categoryName");
+							object.remove("subcategoryName");
+							object.remove("recordActive");
+							object.remove("itemProperty");
+							object.remove("orderStatus");
+							object.remove("quantity");
+							object.remove("limit");
+							object.remove("offset");
+
+						}
 					}
-					
+
 					result.put("result", "SUCCESS");
 					result.put("message", rootNode);
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				} else {
-					result.put("result", "FAILURE.");
+					result.put("result", "FAILURE");
 					result.put("message", "Failed to fetch all Items.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+
+	@RequestMapping(value = "/getItemDetails.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String getItemDetails(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		ItemModel itemDetils = new ItemModel();
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				itemDetils = itemService.getItemDetails(item);
+			}
+
+			try {
+				if (null != itemDetils) {
+					JsonNode rootNode = jsonMapper.valueToTree(itemDetils);
+						if (rootNode instanceof ObjectNode) {
+							ObjectNode object = (ObjectNode) rootNode;
+							object.remove("guid");
+							object.remove("email");
+							object.remove("sessionId");
+							object.remove("categoryName");
+							object.remove("subcategoryName");
+							object.remove("quantity");
+							object.remove("orderStatus");
+							object.remove("recordActive");
+							object.remove("limit");
+							object.remove("offset");
+
+					}
+
+					result.put("result", "SUCCESS");
+					result.put("message", rootNode);
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to fetch Item details.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/putItemToCart.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String putItemToCart(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		boolean itemAdded = false;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				itemAdded = itemService.putItemToCart(item);
+			}
+
+			try {
+				if (itemAdded) {
+					result.put("result", "SUCCESS");
+					result.put("message", "Item has been successfully added to cart");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to add item in Cart.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/getItemsFromCart.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String getItemsFromCart(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		List<ItemModel> itemsInCart = null;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				itemsInCart = itemService.getItemsFromCart(item);
+			}
+
+			try {
+				if (null != itemsInCart && !itemsInCart.isEmpty()) {
+					JsonNode rootNode = jsonMapper.valueToTree(itemsInCart);
+					for (JsonNode node : rootNode) {
+						if (node instanceof ObjectNode) {
+							ObjectNode object = (ObjectNode) node;
+							object.remove("guid");
+							object.remove("email");
+							object.remove("sessionId");
+							object.remove("categoryName");
+							object.remove("subcategoryName");
+							object.remove("orderStatus");
+							object.remove("recordActive");
+							object.remove("itemProperty");
+							object.remove("limit");
+							object.remove("offset");
+
+						}
+					}
+					result.put("result", "SUCCESS");
+					result.put("message", rootNode);
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to fetch Items from Cart.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/deleteItemFromCart.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String deleteItemFromCart(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		boolean itemDeleted = false;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				itemDeleted = itemService.deleteItemFromCart(item);
+			}
+
+			try {
+				if (itemDeleted) {
+					result.put("result", "SUCCESS");
+					result.put("message", "Item has been successfully deleted from cart");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to delete item from Cart.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/updateItemQtyInCart.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String updateItemQtyInCart(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		boolean itemUpdated = false;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				itemUpdated = itemService.updateItemQtyInCart(item);
+			}
+
+			try {
+				if (itemUpdated) {
+					result.put("result", "SUCCESS");
+					result.put("message", "Item has been successfully updated in cart");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to update item in Cart.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/placeOrder.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String placeOrder(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		boolean orderPlaced = false;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				orderPlaced = itemService.placeOrder(item);
+			}
+
+			try {
+				if (orderPlaced) {
+					result.put("result", "SUCCESS");
+					result.put("message", "Your Order has been placed successfully.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to place your order.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/updateOrder.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String updateOrder(@Valid @RequestBody OrderModel order, BindingResult bindingResult) {
+		boolean orderUpdated = false;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(order.getEmail(), order.getSessionId())) {
+				orderUpdated = itemService.updateOrder(order);
+			}
+
+			try {
+				if (orderUpdated) {
+					result.put("result", "SUCCESS");
+					result.put("message", "Your Order has been updated successfully.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to updated your order.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
+	
+	@RequestMapping(value = "/getAllUserOrder.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String getAllUserOrder(@Valid @RequestBody ItemModel order, BindingResult bindingResult) {
+		List<ItemModel> orders = null;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(order.getEmail(), order.getSessionId())) {
+				orders = itemService.getAllUserOrder(order);
+			}
+
+			try {
+				if (null != orders && !orders.isEmpty()) {
+					JsonNode rootNode = jsonMapper.valueToTree(orders);
+					for (JsonNode node : rootNode) {
+						if (node instanceof ObjectNode) {
+							ObjectNode object = (ObjectNode) node;
+							object.remove("guid");
+							object.remove("email");
+							object.remove("sessionId");
+							object.remove("categoryName");
+							object.remove("subcategoryName");
+							object.remove("recordActive");
+							object.remove("itemProperty");
+							object.remove("limit");
+							object.remove("offset");
+						}
+					}
+					result.put("result", "SUCCESS");
+					result.put("message", rootNode);
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to Fetch your orders.");
 					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 				}
 			} catch (JsonProcessingException e) {

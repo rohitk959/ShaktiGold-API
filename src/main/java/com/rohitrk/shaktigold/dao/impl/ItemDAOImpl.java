@@ -7,16 +7,22 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import com.rohitrk.shaktigold.dao.ItemDAO;
+import com.rohitrk.shaktigold.mapper.CartItemMapper;
 import com.rohitrk.shaktigold.mapper.CategoryMapper;
+import com.rohitrk.shaktigold.mapper.ItemDetailsMapper;
 import com.rohitrk.shaktigold.mapper.ItemMapper;
 import com.rohitrk.shaktigold.mapper.ItemtemplateMapper;
+import com.rohitrk.shaktigold.mapper.OrderUserMapper;
 import com.rohitrk.shaktigold.mapper.SubCategoryMapper;
 import com.rohitrk.shaktigold.model.CategoryModel;
 import com.rohitrk.shaktigold.model.ItemModel;
 import com.rohitrk.shaktigold.model.ItemProperty;
+import com.rohitrk.shaktigold.model.OrderModel;
 import com.rohitrk.shaktigold.model.SubCategoryModel;
 import com.rohitrk.shaktigold.model.SubCategoryProperty;
 import com.rohitrk.shaktigold.query.ItemQuery;
@@ -37,7 +43,7 @@ public class ItemDAOImpl implements ItemDAO {
 
 		try {
 			jdbcTemplate.update(ItemQuery.INSERT_CATEGORY,
-					new Object[] { category.getCategoryName(), category.getDescription() });
+					new Object[] { category.getCategoryName(), category.getDescription(), category.getImgUrl() });
 			result = true;
 		} catch (DataAccessException e) {
 			e.printStackTrace();
@@ -66,7 +72,7 @@ public class ItemDAOImpl implements ItemDAO {
 		try {
 			for (SubCategoryModel subcategory : category.getSubcategory()) {
 				rowsInserted += jdbcTemplate.update(ItemQuery.INSERT_SUB_CATEGORY, new Object[] {
-						subcategory.getSubcategoryName(), subcategory.getDescription(), category.getCategoryName() });
+						subcategory.getSubcategoryName(), subcategory.getDescription(), subcategory.getImgUrl(), category.getCategoryName() });
 			}
 		} catch (DataAccessException e) {
 			e.printStackTrace();
@@ -132,11 +138,8 @@ public class ItemDAOImpl implements ItemDAO {
 		CategoryModel subcategory = null;
 
 		try {
-			List<CategoryModel> subcategoryList = jdbcTemplate.query(ItemQuery.GET_ALL_SUB_CATEGORY,
-					new Object[] { categoryName }, new SubCategoryMapper());
-			if (null != subcategoryList && null != subcategoryList.get(0)) {
-				subcategory = subcategoryList.get(0);
-			}
+			subcategory = jdbcTemplate.queryForObject(ItemQuery.GET_ALL_SUB_CATEGORY, new Object[] { categoryName },
+					new SubCategoryMapper());
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -180,8 +183,7 @@ public class ItemDAOImpl implements ItemDAO {
 
 		try {
 			templateList = jdbcTemplate.query(ItemQuery.GET_ITEM_TEMPLATE,
-					new Object[] { item.getSubcategoryName(), item.getCategoryName() },
-					new ItemtemplateMapper());
+					new Object[] { item.getSubcategoryName(), item.getCategoryName() }, new ItemtemplateMapper());
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
@@ -192,14 +194,115 @@ public class ItemDAOImpl implements ItemDAO {
 	@Override
 	public List<ItemModel> getAllItems(ItemModel item) {
 		List<ItemModel> itemList = null;
-		
+
 		try {
 			itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS, new Object[] { item.getSubcategoryName(),
 					item.getCategoryName(), item.getLimit(), item.getOffset() }, new ItemMapper());
 		} catch (DataAccessException e) {
 			e.printStackTrace();
 		}
-		
+
 		return itemList;
+	}
+
+	@Override
+	public ItemModel getItemDetails(ItemModel item) {
+		ItemModel itemVO = null;
+
+		try {
+			itemVO = jdbcTemplate.queryForObject(ItemQuery.GET_ITEM_DETAILS, new Object[] { item.getItemId() },
+					new ItemDetailsMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return itemVO;
+	}
+
+	@Override
+	public boolean insertItemToCart(ItemModel item) {
+		int rowsInserted = 0;
+
+		try {
+			rowsInserted += jdbcTemplate.update(ItemQuery.INSERT_ITEM_TO_CART, new Object[] { item.getQuantity(),
+					item.getItemId(), item.getEmail() });
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return rowsInserted == 0 ? false : true;
+	}
+
+	@Override
+	public List<ItemModel> getItemsFromCart(ItemModel item) {
+		List<ItemModel> itemsList = null;
+		
+		try {
+			itemsList = jdbcTemplate.query(ItemQuery.GET_ALL_CART_ITEMS, new Object[] { item.getEmail() }, new CartItemMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return itemsList;
+	}
+
+	@Override
+	public boolean deleteItemFromCart(ItemModel item) {
+		int rowsDeleted = 0;
+
+		try {
+			rowsDeleted += jdbcTemplate.update(ItemQuery.DELETE_ITEM_FROM_CART, new Object[] { item.getItemId(), item.getEmail() });
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return rowsDeleted == 0 ? false : true;
+	}
+
+	@Override
+	public boolean updateItemQtyInCart(ItemModel item) {
+		int rowsUpdated = 0;
+
+		try {
+			rowsUpdated += jdbcTemplate.update(ItemQuery.UPDATE_ITEM_FROM_CART, new Object[] { item.getQuantity(), item.getItemId(), item.getEmail() });
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return rowsUpdated == 0 ? false : true;
+	}
+
+	@Override
+	public boolean placeOrder(ItemModel item) {
+		
+		jdbcTemplate.update("CALL place_order(?)", item.getEmail());
+		
+		return true;
+	}
+
+	@Override
+	public boolean updateOrder(OrderModel order) {
+		int rowsUpdated = 0;
+
+		try {
+			rowsUpdated += jdbcTemplate.update(ItemQuery.UPDATE_ORDER_STATUS, new Object[] { order.getOrderStatus(), order.getItemId(), order.getEmail() });
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return rowsUpdated == 0 ? false : true;
+	}
+
+	@Override
+	public List<ItemModel> getAllUserOrder(ItemModel order) {
+		List<ItemModel> orders = null;
+		
+		try {
+			orders = jdbcTemplate.query(ItemQuery.GET_ALL_ORDERS_FOR_USER, new Object[] { order.getEmail() }, new OrderUserMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return orders;
 	}
 }

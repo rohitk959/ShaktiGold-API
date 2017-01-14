@@ -24,6 +24,7 @@ public class SubCategoryMapper implements RowMapper<CategoryModel>{
 			SubCategoryModel subCategory = new SubCategoryModel();
 			subCategory.setSubcategoryName(rs.getString("subcategory_name"));
 			subCategory.setDescription(rs.getString("subcategory_description"));
+			subCategory.setImgUrl(rs.getString("img_url"));
 			subCategory.setRecordActive(rs.getInt("subcategory_record_active") == 1? true : false);
 			subcategoryList.add(subCategory);
 		} while(rs.next());

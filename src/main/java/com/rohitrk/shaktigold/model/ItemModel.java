@@ -9,7 +9,9 @@ public class ItemModel {
 	private String subcategoryName;
 	private String itemName;
 	private int itemId;
+	private int quantity;
 	private String imgUrl;
+	private String orderStatus;
 	private boolean recordActive;
 	private List<ItemProperty> itemProperty;
 	private int limit;
@@ -51,11 +53,23 @@ public class ItemModel {
 	public void setItemId(int itemId) {
 		this.itemId = itemId;
 	}
+	public int getQuantity() {
+		return quantity;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
 	public String getImgUrl() {
 		return imgUrl;
 	}
 	public void setImgUrl(String imgUrl) {
 		this.imgUrl = imgUrl;
+	}
+	public String getOrderStatus() {
+		return orderStatus;
+	}
+	public void setOrderStatus(String orderStatus) {
+		this.orderStatus = orderStatus;
 	}
 	public boolean isRecordActive() {
 		return recordActive;

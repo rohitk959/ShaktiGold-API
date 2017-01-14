@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.rohitrk.shaktigold.dao.ItemDAO;
 import com.rohitrk.shaktigold.model.CategoryModel;
 import com.rohitrk.shaktigold.model.ItemModel;
+import com.rohitrk.shaktigold.model.OrderModel;
 import com.rohitrk.shaktigold.model.SubCategoryProperty;
 import com.rohitrk.shaktigold.service.ItemService;
 
@@ -84,5 +85,45 @@ public class ItemServiceImpl implements ItemService {
 	@Override
 	public List<ItemModel> getAllItems(ItemModel item) {
 		return itemDAO.getAllItems(item);
+	}
+	
+	@Override
+	public ItemModel getItemDetails(ItemModel item) {
+		return itemDAO.getItemDetails(item);
+	}
+
+	@Override
+	public boolean putItemToCart(ItemModel item) {
+		return itemDAO.insertItemToCart(item);
+	}
+
+	@Override
+	public List<ItemModel> getItemsFromCart(ItemModel item) {
+		return itemDAO.getItemsFromCart(item);
+	}
+
+	@Override
+	public boolean deleteItemFromCart(ItemModel item) {
+		return itemDAO.deleteItemFromCart(item);
+	}
+
+	@Override
+	public boolean updateItemQtyInCart(ItemModel item) {
+		return itemDAO.updateItemQtyInCart(item);
+	}
+
+	@Override
+	public boolean placeOrder(ItemModel item) {
+		return itemDAO.placeOrder(item);
+	}
+
+	@Override
+	public boolean updateOrder(OrderModel order) {
+		return itemDAO.updateOrder(order);
+	}
+
+	@Override
+	public List<ItemModel> getAllUserOrder(ItemModel order) {
+		return itemDAO.getAllUserOrder(order);
 	}
 }

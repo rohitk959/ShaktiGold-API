@@ -3,17 +3,13 @@ package com.rohitrk.shaktigold.model;
 import java.util.List;
 
 public class CategoryModel {
-	//@Expose(serialize=false)
 	private String guid;
 	private String categoryName;
 	private String description;
-	//@Expose(serialize=false)
 	private boolean recordActive;
-	//@Expose(serialize=false)
 	private String sessionId;
-	//@Expose(serialize=false)
 	private String email;
-	//@Expose(serialize=false)
+	private String imgUrl;
 	private List<SubCategoryModel> subcategory;
 	
 	public String getGuid() {
@@ -51,6 +47,12 @@ public class CategoryModel {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getImgUrl() {
+		return imgUrl;
+	}
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
 	}
 	public List<SubCategoryModel> getSubcategory() {
 		return subcategory;

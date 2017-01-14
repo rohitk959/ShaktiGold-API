@@ -15,6 +15,7 @@ public class CategoryMapper implements RowMapper<CategoryModel> {
 		
 		category.setCategoryName(rs.getString("category_name"));
 		category.setDescription(rs.getString("description"));
+		category.setImgUrl(rs.getString("img_url"));
 		category.setRecordActive(rs.getInt("record_active") == 1? true : false);
 		
 		return category;

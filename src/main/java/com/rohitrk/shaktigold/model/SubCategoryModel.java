@@ -5,6 +5,7 @@ import java.util.List;
 public class SubCategoryModel {
 	private String subcategoryName;
 	private String description;
+	private String imgUrl;
 	private boolean recordActive;
 	private List<SubCategoryProperty> properties;
 	
@@ -19,6 +20,12 @@ public class SubCategoryModel {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getImgUrl() {
+		return imgUrl;
+	}
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
 	}
 	public List<SubCategoryProperty> getProperties() {
 		return properties;
