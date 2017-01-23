@@ -256,7 +256,6 @@ public class ItemController {
 							object.remove("categoryName");
 							object.remove("subcategoryName");
 							object.remove("recordActive");
-							object.remove("itemProperty");
 							object.remove("orderStatus");
 							object.remove("quantity");
 							object.remove("limit");
