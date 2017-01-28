@@ -46,4 +46,6 @@ public interface ItemDAO {
 	boolean updateOrder(OrderModel order);
 
 	List<ItemModel> getAllUserOrder(ItemModel order);
+
+	boolean itemExistsInCart(ItemModel item);
 }

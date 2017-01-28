@@ -534,4 +534,30 @@ public class ItemController {
 		}
 		return json;
 	}
+	
+	@RequestMapping(value = "/getEstimate.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public String getEstimate(@Valid @RequestBody ItemModel item, BindingResult bindingResult) {
+		boolean orderUpdated = false;
+
+		if (!bindingResult.hasErrors()) {
+			if (userService.validateUserSession(item.getEmail(), item.getSessionId())) {
+				orderUpdated = itemService.sendEstimateSms(item);
+			}
+
+			try {
+				if (orderUpdated) {
+					result.put("result", "SUCCESS");
+					result.put("message", "SMS sent successfully.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to send SMS.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
+		return json;
+	}
 }

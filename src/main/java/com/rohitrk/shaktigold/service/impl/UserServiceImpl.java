@@ -37,14 +37,22 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public boolean registerUser(UserAccountModel userAccount) {
+		boolean result = false;
 		try {
 			userAccount.setPasswordSalt(PasswordUtil.getSalt());
 			userAccount.setPasswordHash(PasswordUtil.hash(userAccount.getPassword(), userAccount.getPasswordSalt()));
 			userAccount.setPassword(null);
+			
+			if(registerSingleUser(userAccount)) {
+				userAccount.getUserDetailsModel().setAddressLine1("");
+				userAccount.getUserDetailsModel().setState("");
+				userAccount.getUserDetailsModel().setCountry("");
+				result = userDAO.insertUserProfile(userAccount);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return registerSingleUser(userAccount);
+		return result;
 	}
 
 	private boolean registerSingleUser(UserAccountModel userAccount) {
@@ -109,5 +117,39 @@ public class UserServiceImpl implements UserService {
 	private UserDetailsModel getSingleUserProfileByEmail(String email) {
 		
 		return userDAO.getSingleUserProfileByEmail(email);
+	}
+
+	@Override
+	public UserAccountModel getUserDetails(String email) {
+		UserAccountModel user = getSingleUserByEmail(email);
+		user.setPasswordHash(null);
+		user.setPasswordSalt(null);
+		user.setUserDetailsModel(userDAO.getSingleUserProfileByEmail(email));
+		return user;
+	}
+
+	@Override
+	public boolean changePassword(UserAccountModel userAccount) {
+		boolean validPassword = false;
+		boolean passwordChanged = false;
+		UserAccountModel user = new UserAccountModel();
+		
+		user = getSingleUserByEmail(userAccount.getEmail());
+		
+		if(user != null) {
+			try {
+				validPassword = PasswordUtil.check(userAccount.getPassword(), user.getPasswordHash(), user.getPasswordSalt());
+				
+				if(validPassword) {
+					userAccount.setPasswordSalt(PasswordUtil.getSalt());
+					userAccount.setPasswordHash(PasswordUtil.hash(userAccount.getNewPassword(), userAccount.getPasswordSalt()));
+					passwordChanged = userDAO.updatePassword(userAccount);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return passwordChanged;
 	}
 }

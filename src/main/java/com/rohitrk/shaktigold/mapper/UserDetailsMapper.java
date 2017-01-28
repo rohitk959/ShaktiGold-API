@@ -17,7 +17,7 @@ public class UserDetailsMapper implements RowMapper<UserDetailsModel> {
 		userDetails.setAddressLine2(rs.getString("address_line_2"));
 		userDetails.setState(rs.getString("state"));
 		userDetails.setCountry(rs.getString("country"));
-		userDetails.setAltMobileNumber(rs.getString("mobile_number"));
+		userDetails.setMobileNumber(rs.getString("mobile_number"));
 		userDetails.setAltMobileNumber(rs.getString("alt_mobile_number"));
 		userDetails.setLandLineNumber(rs.getString("landline_number"));
 		userDetails.setProfileImg(rs.getString("profile_img"));

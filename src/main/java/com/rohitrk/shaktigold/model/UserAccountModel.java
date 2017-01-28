@@ -7,15 +7,12 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 public class UserAccountModel {
 	private String guid;
-	@Size(min = 3, max = 30)
 	private String firstName;
-	@Size(min = 3, max = 30)
 	private String lastName;
-	@Email @NotEmpty
 	private String email;
 	private String role;
-	@NotEmpty
 	private String password;
+	private String newPassword;
 	private String passwordHash;
 	private String passwordSalt;
 	private String createdDate;
@@ -57,6 +54,12 @@ public class UserAccountModel {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getNewPassword() {
+		return newPassword;
+	}
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
 	}
 	public String getPasswordHash() {
 		return passwordHash;

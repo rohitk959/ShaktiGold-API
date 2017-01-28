@@ -15,5 +15,7 @@ public class UserQuery {
 
 	public static final String GET_USER_SESSION = "SELECT ssid FROM user_session where user_account_fk = (SELECT guid FROM user_account WHERE email = UPPER(?))";
 
-	public static final String FETCH_USER_DETAILS_BY_EMAIL = "SELECT user_details.address_line_1, user_details.address_line_2, user_details.state, user_details.country, user_details.mobile_number, user_details.alt_mobile_number, user_details.landline_number, user_details.profile_img FROM user_details user_details, user_account user_account WHERE user_details.user_account_fk = (SELECT guid FROM user_account WHERE email = UPPER(?))";
+	public static final String FETCH_USER_DETAILS_BY_EMAIL = "SELECT user_details.address_line_1, user_details.address_line_2, user_details.state, user_details.country, user_details.mobile_number, user_details.alt_mobile_number, user_details.landline_number, user_details.profile_img FROM user_details user_details WHERE user_details.user_account_fk = (SELECT guid FROM user_account WHERE email = UPPER(?))";
+
+	public static final String UPDATE_USER_PASSWORD = "UPDATE user_account SET password_hash = ?, password_salt = ? WHERE UPPER(email) = ?";
 }

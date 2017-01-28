@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rohitrk.shaktigold.model.UserAccountModel;
 import com.rohitrk.shaktigold.service.UserService;
 import com.rohitrk.shaktigold.validations.ApplicationValidator;
@@ -26,7 +28,7 @@ public class UserController {
 	@Autowired
 	UserService userService;
 	String json;
-	Map<String, String> result = new HashMap<String, String>();
+	Map<String, Object> result = new HashMap<String, Object>();
 	UserValidator validator = new UserValidator();
 	ObjectMapper jsonMapper = new ObjectMapper();
 	
@@ -105,6 +107,93 @@ public class UserController {
 					} else {
 						result.put("result", "FAILURE");
 						result.put("message", "Unable to update profile. Please contact System Administrator.");
+						json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+					}
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Invalid Session.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} else {
+				result.put("result", "FAILURE");
+				result.put("message", "Validation Failed.");
+				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+			}
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return json;
+	}
+	
+	@RequestMapping(value="/getUserProfile.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+	public String getUserProfile(@Valid @RequestBody UserAccountModel userAccount, BindingResult bindingResult) {
+		UserAccountModel userProfile = null;
+		
+		try {
+			if(!bindingResult.hasErrors()) {
+				if(userService.validateUserSession(userAccount.getEmail(), userAccount.getSessionId())) {
+					userProfile = userService.getUserDetails(userAccount.getEmail());
+					if(null != userProfile) {
+						JsonNode rootNode = jsonMapper.valueToTree(userProfile);
+						ObjectNode mainObject = (ObjectNode) rootNode;
+						mainObject.remove("guid");
+						mainObject.remove("role");
+						mainObject.remove("password");
+						mainObject.remove("newPassword");
+						mainObject.remove("passwordHash");
+						mainObject.remove("passwordSalt");
+						mainObject.remove("createdDate");
+						mainObject.remove("sessionId");
+						for (JsonNode node : rootNode) {
+							if (node instanceof ObjectNode) {
+								ObjectNode object = (ObjectNode) node;
+								object.remove("guid");
+								object.remove("updatedDate");
+							}
+						}
+						
+						result.put("result", "SUCCESS");
+						result.put("message", rootNode);
+						json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+					} else {
+						result.put("result", "FAILURE");
+						result.put("message", "Unable to get user profile. Please contact System Administrator.");
+						json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+					}
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Invalid Session.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} else {
+				result.put("result", "FAILURE");
+				result.put("message", "Validation Failed.");
+				json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+			}
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return json;
+	}
+	
+	@RequestMapping(value="/changePassword.htm", method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+	public String changePassword(@Valid @RequestBody UserAccountModel userAccount, BindingResult bindingResult) {
+		boolean passwordChanged = false;
+		
+		try {
+			if(!bindingResult.hasErrors()) {
+			
+				if(userService.validateUserSession(userAccount.getEmail(), userAccount.getSessionId())) {
+					passwordChanged = userService.changePassword(userAccount);
+					if(passwordChanged) {
+						result.put("result", "SUCCESS");
+						result.put("message", "Password Updated Successfully.");
+						json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+					} else {
+						result.put("result", "FAILURE");
+						result.put("message", "Unable to update password. Please contact System Administrator.");
 						json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
 					}
 				} else {

@@ -158,4 +158,16 @@ public class UserDAOImpl implements UserDAO{
 		
 		return userDetail;
 	}
+
+	@Override
+	public boolean updatePassword(UserAccountModel userAccount) {
+		int rowsUpdated = 0;
+		
+		try{
+			rowsUpdated = jdbcTemplate.update(UserQuery.UPDATE_USER_PASSWORD, userAccount.getPasswordHash(), userAccount.getPasswordSalt(), userAccount.getEmail());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		return rowsUpdated == 1? true : false;
+	}
 }

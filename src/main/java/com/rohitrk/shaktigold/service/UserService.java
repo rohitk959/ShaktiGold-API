@@ -13,4 +13,8 @@ public interface UserService {
 	public String enableLogin(UserAccountModel userAccount);
 	
 	public boolean validateUserSession(String email, String sessionId);
+	
+	public UserAccountModel getUserDetails(String email);
+
+	public boolean changePassword(UserAccountModel userAccount);
 }

@@ -21,4 +21,6 @@ public interface UserDAO {
 
 	UserDetailsModel getSingleUserProfileByEmail(String email);
 
+	boolean updatePassword(UserAccountModel userAccount);
+
 }

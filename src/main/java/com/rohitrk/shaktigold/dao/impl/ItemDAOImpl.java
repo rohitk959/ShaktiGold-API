@@ -305,4 +305,17 @@ public class ItemDAOImpl implements ItemDAO {
 		
 		return orders;
 	}
+
+	@Override
+	public boolean itemExistsInCart(ItemModel item) {
+		boolean itemExists = false;
+		
+		try {
+			itemExists = jdbcTemplate.queryForObject(ItemQuery.CHECK_ITEM_EXISTS_IN_CART, Boolean.class, new Object[] { item.getItemId(), item.getEmail() });
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return itemExists;
+	}
 }
