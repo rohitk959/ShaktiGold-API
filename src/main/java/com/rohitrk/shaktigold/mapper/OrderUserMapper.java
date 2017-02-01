@@ -18,6 +18,8 @@ public class OrderUserMapper implements RowMapper<ItemModel> {
 		order.setImgUrl(rs.getString("img_url"));
 		order.setQuantity(rs.getInt("quantity"));
 		order.setOrderStatus(rs.getString("order_status"));
+		order.setOrderDate(rs.getString("order_date"));
+		order.setOrderCompleteDate(rs.getString("order_complete_date") == null? "NA" : rs.getString("order_complete_date"));
 		
 		return order;
 	}

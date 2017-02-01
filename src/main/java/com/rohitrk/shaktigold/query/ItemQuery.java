@@ -36,7 +36,7 @@ public class ItemQuery {
 
 	public static final String UPDATE_ORDER_STATUS = "UPDATE order SET order_status = ? WHERE item_fk = (SELECT guid FROM item WHERE item_id = ?) AND user_account_fk = (select guid from user_account where email = ?) AND order_status != 'CLOSED'";
 	
-	public static final String GET_ALL_ORDERS_FOR_USER = "SELECT item.item_id, item.item_name, item.img_url, ordd.quantity, ordd.order_status, ordd.order_date, ordd.order_complete_date, ordd.invoice_number, ordd.order_description FROM order_details ordd INNER JOIN item item on ordd.item_fk = item.guid INNER JOIN user_account usra ON ordd.user_account_fk = usra.guid WHERE usra.email = ?";
+	public static final String GET_ALL_ORDERS_FOR_USER = "SELECT item.item_id, item.item_name, item.img_url, ordd.quantity, ordd.order_status, DATE_FORMAT(ordd.order_date,'%e %b, %Y - %l:%i %p')as order_date, DATE_FORMAT(ordd.order_complete_date,'%e %b, %Y - %l:%i %p')as order_complete_date, ordd.invoice_number, ordd.order_description FROM order_details ordd INNER JOIN item item on ordd.item_fk = item.guid INNER JOIN user_account usra ON ordd.user_account_fk = usra.guid WHERE usra.email = ? ORDER BY ordd.order_date DESC";
 
 	public static final String CHECK_ITEM_EXISTS_IN_CART = "SELECT 1 FROM cart WHERE item_fk = (SELECT guid FROM item WHERE item_id = ?) and user_account_fk = (select guid from user_account where email = ?)";
 }

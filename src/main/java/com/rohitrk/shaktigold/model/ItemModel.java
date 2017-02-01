@@ -12,6 +12,8 @@ public class ItemModel {
 	private int quantity;
 	private String imgUrl;
 	private String orderStatus;
+	private String orderDate;
+	private String orderCompleteDate;
 	private boolean recordActive;
 	private List<ItemProperty> itemProperty;
 	private int limit;
@@ -67,6 +69,18 @@ public class ItemModel {
 	}
 	public String getOrderStatus() {
 		return orderStatus;
+	}
+	public String getOrderDate() {
+		return orderDate;
+	}
+	public void setOrderDate(String orderDate) {
+		this.orderDate = orderDate;
+	}
+	public String getOrderCompleteDate() {
+		return orderCompleteDate;
+	}
+	public void setOrderCompleteDate(String orderCompleteDate) {
+		this.orderCompleteDate = orderCompleteDate;
 	}
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;
