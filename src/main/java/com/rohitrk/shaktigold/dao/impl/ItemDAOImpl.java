@@ -7,8 +7,6 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlParameter;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import com.rohitrk.shaktigold.dao.ItemDAO;
@@ -26,6 +24,7 @@ import com.rohitrk.shaktigold.model.OrderModel;
 import com.rohitrk.shaktigold.model.SubCategoryModel;
 import com.rohitrk.shaktigold.model.SubCategoryProperty;
 import com.rohitrk.shaktigold.query.ItemQuery;
+import com.rohitrk.shaktigold.util.Constants;
 
 @Repository("itemDao")
 public class ItemDAOImpl implements ItemDAO {
@@ -317,5 +316,155 @@ public class ItemDAOImpl implements ItemDAO {
 		}
 		
 		return itemExists;
+	}
+
+	@Override
+	public List<ItemModel> getAllAdminOrder(ItemModel order) {
+		List<ItemModel> orders = null;
+		
+		try {
+			orders = jdbcTemplate.query(ItemQuery.GET_ALL_ORDERS_FOR_ADMIN, new OrderUserMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return orders;
+	}
+
+	@Override
+	public boolean updateOrderAdmin(ItemModel order) {
+		int orderUpdated = 0;
+		
+		try {
+			orderUpdated = jdbcTemplate.update(ItemQuery.UPDATE_ORDER_STATUS_ADMIN, new Object[] { order.getOrderStatus(), order.getInvoiceNumber() });
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return orderUpdated == 1 ? true : false;
+	}
+
+	@Override
+	public boolean checkHasMoreItems(ItemModel item) {
+		List<ItemModel> itemList = null;
+
+		try {
+			itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS, new Object[] { item.getSubcategoryName(),
+					item.getCategoryName(), item.getLimit(), item.getOffset() + item.getLimit() }, new ItemMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return itemList.size() > 0 ? true : false;
+	}
+
+	@Override
+	public int getLatestItemId() {
+		int itemId = 0;
+		
+		try {
+			itemId = jdbcTemplate.queryForObject(ItemQuery.GET_LATEST_ITEM_ID, Integer.class );
+		} catch (DataAccessException e) {
+			//Fresh Item table inserting first item into table
+			e.printStackTrace();
+		}
+		
+		return itemId;
+	}
+
+	@Override
+	public CategoryModel getAllSubCategoryForAdmin(String categoryName) {
+		CategoryModel subcategory = null;
+
+		try {
+			subcategory = jdbcTemplate.queryForObject(ItemQuery.GET_ALL_SUB_CATEGORY_FOR_ADMIN, new Object[] { categoryName },
+					new SubCategoryMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return subcategory;
+	}
+
+	@Override
+	public boolean enableDisableSubcategory(String subcategory, boolean hidden) {
+		int recordsUpdated = 0;
+		
+		try {
+			recordsUpdated = jdbcTemplate.update(ItemQuery.ENABLE_DISABLE_SUBCATEGORY, hidden == true ? 0 : 1, subcategory);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return recordsUpdated > 0 ? true : false;
+	}
+
+	@Override
+	public List<ItemModel> getAllItemsAdmin(ItemModel item) {
+		List<ItemModel> itemList = null;
+
+		try {
+			itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS_ADMIN, new Object[] { item.getSubcategoryName(),
+					item.getCategoryName() }, new ItemMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+
+		return itemList;
+	}
+
+	@Override
+	public boolean enableDisableItem(String itemId, boolean hidden) {
+		int recordsUpdated = 0;
+		
+		try {
+			recordsUpdated = jdbcTemplate.update(ItemQuery.ENABLE_DISABLE_ITEM, hidden == true ? 0 : 1, itemId);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return recordsUpdated > 0 ? true : false;
+	}
+
+	@Override
+	public boolean deleteSubcategory(String subcategory) {
+		int recordsDeleted = 0;
+		
+		try {
+			recordsDeleted = jdbcTemplate.update(ItemQuery.DELETE_SUBCATEGORY, subcategory);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return recordsDeleted > 0 ? true : false;
+	}
+
+	@Override
+	public boolean deleteItem(String itemId) {
+		int recordsDeleted = 0;
+		
+		try {
+			recordsDeleted = jdbcTemplate.update(ItemQuery.DELETE_ITEM, itemId);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return recordsDeleted > 0 ? true : false;
+
+	}
+
+	@Override
+	public boolean insertNotification(ItemModel item) {
+		
+		int recordsInserted = 0;
+		
+		try {
+			recordsInserted = jdbcTemplate.update(ItemQuery.INSERT_NOTIFICATION,
+					new Object[] { Constants.READ_NO, Constants.READ_NO, item.getEmail(), item.getItemId() });
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return recordsInserted > 0 ? true : false;
 	}
 }

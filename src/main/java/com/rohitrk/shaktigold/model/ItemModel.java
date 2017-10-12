@@ -14,6 +14,7 @@ public class ItemModel {
 	private String orderStatus;
 	private String orderDate;
 	private String orderCompleteDate;
+	private String invoiceNumber;
 	private boolean recordActive;
 	private List<ItemProperty> itemProperty;
 	private int limit;
@@ -81,6 +82,12 @@ public class ItemModel {
 	}
 	public void setOrderCompleteDate(String orderCompleteDate) {
 		this.orderCompleteDate = orderCompleteDate;
+	}
+	public String getInvoiceNumber() {
+		return invoiceNumber;
+	}
+	public void setInvoiceNumber(String invoiceNumber) {
+		this.invoiceNumber = invoiceNumber;
 	}
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;

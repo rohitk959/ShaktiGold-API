@@ -6,6 +6,7 @@ import com.rohitrk.shaktigold.model.CategoryModel;
 import com.rohitrk.shaktigold.model.ItemModel;
 import com.rohitrk.shaktigold.model.OrderModel;
 import com.rohitrk.shaktigold.model.SubCategoryProperty;
+import com.rohitrk.shaktigold.model.UserAccountModel;
 
 public interface ItemService {
 
@@ -43,4 +44,25 @@ public interface ItemService {
 
 	boolean sendEstimateSms(ItemModel item);
 
+	List<ItemModel> getAllAdminOrder(ItemModel order);
+
+	boolean updateOrderAdmin(ItemModel order);
+
+	UserAccountModel getUserProfileByInvoiceNumber(ItemModel order);
+
+	boolean hasMoreItems(ItemModel item);
+
+	CategoryModel getAllSubCategoryForAdmin(CategoryModel category);
+
+	boolean enableDisableSubcategory(String subcategory, boolean hidden);
+
+	List<ItemModel> getAllItemsAdmin(ItemModel item);
+
+	boolean enableDisableItem(String itemId, boolean hidden);
+
+	boolean deleteSubcategory(String subcategory);
+
+	boolean deleteItem(String itemId);
+
+	boolean sendEstimateDB(ItemModel item);
 }

@@ -1,11 +1,17 @@
 package com.rohitrk.shaktigold.service.impl;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.ListIterator;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +55,8 @@ public class ItemServiceImpl implements ItemService {
 	private String receiver;
 	@Value("${sms.url}")
 	private String smsUrl;
+	@Value("${app.work.dir}")
+	private String appWorkDir;
 
 	@Override
 	public boolean insertCategory(CategoryModel category) {
@@ -73,14 +81,28 @@ public class ItemServiceImpl implements ItemService {
 	@Override
 	public boolean insertSubCategory(CategoryModel category) {
 		boolean subcategoryAdded = false;
-		boolean subcategoryPropsAdded = false;
-
-		subcategoryAdded = itemDAO.insertSubCategory(category);
-
-		if (subcategoryAdded) {
-			subcategoryPropsAdded = itemDAO.insertSubCategoryProperty(category);
+		
+		String fileExtension = StringUtils.substring(category.getSubcategory().get(0).getImgUrl(),
+				StringUtils.indexOf(category.getSubcategory().get(0).getImgUrl(), "/") + 1,
+				StringUtils.indexOf(category.getSubcategory().get(0).getImgUrl(), ";"));
+		String fileName = category.getSubcategory().get(0).getSubcategoryName().concat(".").concat(fileExtension);
+		
+		if(writeImageToDisk(category.getSubcategory().get(0).getImgUrl(), Constants.SUBCATEGORY_IMG_DIR_PHY.concat(fileName))) {
+			category.getSubcategory().get(0).setImgUrl(Constants.SUBCATEGORY_IMG_DIR + fileName);
+			if(itemDAO.insertSubCategory(category)) {
+				if (itemDAO.insertSubCategoryProperty(category)) {
+					subcategoryAdded = true;
+				} else {
+					// Failed to add subcategory properties to database
+				}
+			} else {
+				// Failed to add subcategory to database
+			}
+		} else {
+			// Failed to write image to disk
 		}
-		return subcategoryAdded && subcategoryPropsAdded;
+		
+		return subcategoryAdded;
 	}
 
 	@Override
@@ -113,14 +135,51 @@ public class ItemServiceImpl implements ItemService {
 	@Override
 	public boolean registerItem(ItemModel item) {
 		boolean itemRegistered = false;
-
-		itemRegistered = itemDAO.registerItem(item);
-
-		if (itemRegistered) {
-			itemDAO.registerItemProperty(item);
+		
+		int itemId = itemDAO.getLatestItemId();
+		++itemId;
+		String fileExtension = StringUtils.substring(item.getImgUrl(), StringUtils.indexOf(item.getImgUrl(), "/") + 1, StringUtils.indexOf(item.getImgUrl(), ";"));
+		String itemName = Constants.ITEM_FILE_NAME + itemId;
+		String itemFileName = itemName.concat(".").concat(fileExtension);
+		
+		if(writeImageToDisk(item.getImgUrl(), Constants.ITEMS_IMG_DIR_PHY.concat(itemFileName))) {
+			item.setItemName(itemName);
+			item.setImgUrl(Constants.ITEMS_IMG_DIR + itemFileName);
+			
+			if (itemDAO.registerItem(item)) {
+				if(itemDAO.registerItemProperty(item)) {
+					itemRegistered = true;
+				} else {
+					//Failed to register item properties in database
+				}
+			} else {
+				//Failed to register item in database
+			}
+		} else {
+			//Image writing failed
 		}
 
 		return itemRegistered;
+	}
+	
+	public boolean writeImageToDisk(String encodedImage, String absoluteFileName) {
+		boolean imageWrite = false;
+		
+		String base64Image = encodedImage.split(",")[1];
+		byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image);
+
+		try {
+			BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+			
+			// write the image to a file
+			File outputfile = new File( appWorkDir + absoluteFileName );
+			ImageIO.write(image, StringUtils.substringAfterLast(absoluteFileName, "."), outputfile);
+			imageWrite = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return imageWrite;
 	}
 
 	@Override
@@ -148,8 +207,13 @@ public class ItemServiceImpl implements ItemService {
 			lItem.setImgUrl(
 					this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold" + lItem.getImgUrl());
 		}
-
+		
 		return items;
+	}
+
+	@Override
+	public boolean hasMoreItems(ItemModel item) {
+		return itemDAO.checkHasMoreItems(item);
 	}
 
 	@Override
@@ -264,5 +328,96 @@ public class ItemServiceImpl implements ItemService {
 		return CommonUtil.getSmsBody(
 				StringUtils.join(userAccount.getFirstName(), Constants.BLANK, userAccount.getLastName()),
 				userAccount.getUserDetailsModel().getMobileNumber(), itemId);
+	}
+
+	@Override
+	public List<ItemModel> getAllAdminOrder(ItemModel order) {
+		List<ItemModel> orders = itemDAO.getAllAdminOrder(order); 
+		
+		CommonUtil.prepareImageURL(orders, this.protocol, this.hostName, this.port);
+		
+		return orders;
+	}
+
+	@Override
+	public boolean updateOrderAdmin(ItemModel order) {
+		return itemDAO.updateOrderAdmin(order);
+	}
+
+	@Override
+	public UserAccountModel getUserProfileByInvoiceNumber(ItemModel order) {
+		String email = userService.getEmailByInvoiceNumber(order.getInvoiceNumber());
+		return userService.getUserDetails(email);
+	}
+
+	@Override
+	public CategoryModel getAllSubCategoryForAdmin(CategoryModel category) {
+		CategoryModel categoryVO = itemDAO.getAllSubCategoryForAdmin(category.getCategoryName());
+
+		for (SubCategoryModel subcategory : categoryVO.getSubcategory()) {
+			if (null != subcategory.getImgUrl()) {
+				subcategory.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold"
+						+ subcategory.getImgUrl());
+			}
+		}
+
+		return categoryVO;
+	}
+
+	@Override
+	public boolean enableDisableSubcategory(String subcategory, boolean hidden) {
+		boolean result = false;
+		
+		result = itemDAO.enableDisableSubcategory(subcategory, hidden);
+		
+		return result;
+	}
+
+	@Override
+	public List<ItemModel> getAllItemsAdmin(ItemModel item) {
+		List<ItemModel> items = itemDAO.getAllItemsAdmin(item);
+
+		for (ItemModel lItem : items) {
+
+			ItemModel lItemDetail = getItemDetails(lItem);
+			ListIterator<ItemProperty> itemPropIterator = lItemDetail.getItemProperty().listIterator();
+
+			while (itemPropIterator.hasNext()) {
+				ItemProperty itemProp = itemPropIterator.next();
+				if (!itemProp.getName().equalsIgnoreCase("weight")) {
+					itemPropIterator.remove();
+				}
+			}
+
+			lItem.setItemProperty(lItemDetail.getItemProperty());
+			lItem.setImgUrl(
+					this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold" + lItem.getImgUrl());
+		}
+		
+		return items;
+	}
+
+	@Override
+	public boolean enableDisableItem(String itemId, boolean hidden) {
+		return itemDAO.enableDisableItem(itemId, hidden);
+	}
+
+	@Override
+	public boolean deleteSubcategory(String subcategory) {
+		return itemDAO.deleteSubcategory(subcategory);
+	}
+
+	@Override
+	public boolean deleteItem(String itemId) {
+		return itemDAO.deleteItem(itemId);
+	}
+
+	@Override
+	public boolean sendEstimateDB(ItemModel item) {
+		boolean notified = false;
+		
+		notified = itemDAO.insertNotification(item);
+		
+		return notified;
 	}
 }

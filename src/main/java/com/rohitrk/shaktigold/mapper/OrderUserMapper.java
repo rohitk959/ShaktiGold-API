@@ -20,6 +20,7 @@ public class OrderUserMapper implements RowMapper<ItemModel> {
 		order.setOrderStatus(rs.getString("order_status"));
 		order.setOrderDate(rs.getString("order_date"));
 		order.setOrderCompleteDate(rs.getString("order_complete_date") == null? "NA" : rs.getString("order_complete_date"));
+		order.setInvoiceNumber(rs.getString("invoice_number"));
 		
 		return order;
 	}

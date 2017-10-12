@@ -1,10 +1,5 @@
 package com.rohitrk.shaktigold.model;
 
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
-
 public class UserAccountModel {
 	private String guid;
 	private String firstName;

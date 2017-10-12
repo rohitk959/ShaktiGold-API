@@ -23,4 +23,8 @@ public interface UserDAO {
 
 	boolean updatePassword(UserAccountModel userAccount);
 
+	String getEmailByInvoiceNumber(String invoiceNumber);
+
+	UserDetailsModel getSingleUserProfileByMobile(String mobileNumber);
+
 }

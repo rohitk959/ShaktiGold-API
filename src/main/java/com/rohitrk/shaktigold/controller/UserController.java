@@ -68,7 +68,7 @@ public class UserController {
 			if (!userService.userExists(userAccount)) {
 				userRegistration = userService.registerUser(userAccount);
 			} else {
-				message = "User Already Exists.";
+				message = "User Already Exists. Please use different Email / Mobile number for Registration.";
 			}
 		} else {
 			

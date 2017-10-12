@@ -17,4 +17,6 @@ public interface UserService {
 	public UserAccountModel getUserDetails(String email);
 
 	public boolean changePassword(UserAccountModel userAccount);
+
+	public String getEmailByInvoiceNumber(String invoiceNumber);
 }

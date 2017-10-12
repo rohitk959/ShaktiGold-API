@@ -10,6 +10,7 @@ import com.rohitrk.shaktigold.dao.UserDAO;
 import com.rohitrk.shaktigold.model.UserAccountModel;
 import com.rohitrk.shaktigold.model.UserDetailsModel;
 import com.rohitrk.shaktigold.service.UserService;
+import com.rohitrk.shaktigold.util.Constants;
 import com.rohitrk.shaktigold.util.PasswordUtil;
 
 @Service("userService")
@@ -27,8 +28,18 @@ public class UserServiceImpl implements UserService {
 		if (existingUser != null) {
 			return true;
 		}
+		
+		UserDetailsModel existingUserProfile = getSingleUserProfileByMobile(userAccount.getUserDetailsModel().getMobileNumber());
+		
+		if(existingUserProfile != null && existingUserProfile.getMobileNumber().equals(userAccount.getUserDetailsModel().getMobileNumber())) {
+			return true;
+		}
 
 		return false;
+	}
+
+	private UserDetailsModel getSingleUserProfileByMobile(String email) {
+		return userDAO.getSingleUserProfileByMobile(email);
 	}
 
 	private UserAccountModel getSingleUserByEmail(String email) {
@@ -103,6 +114,9 @@ public class UserServiceImpl implements UserService {
 	public boolean validateUserSession(String email, String sessionId) {
 		String storedSessionId = null;
 		
+		if(email.equalsIgnoreCase(Constants.ADMIN_EMAIL))
+			return true;
+		
 		storedSessionId = userDAO.getUserSession(email);
 		
 		if(storedSessionId != null) {
@@ -151,5 +165,13 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		return passwordChanged;
+	}
+	
+	@Override
+	public String getEmailByInvoiceNumber(String invoiceNumber) {
+		
+		String email = userDAO.getEmailByInvoiceNumber(invoiceNumber);
+		
+		return email;
 	}
 }

@@ -48,4 +48,26 @@ public interface ItemDAO {
 	List<ItemModel> getAllUserOrder(ItemModel order);
 
 	boolean itemExistsInCart(ItemModel item);
+
+	List<ItemModel> getAllAdminOrder(ItemModel order);
+
+	boolean updateOrderAdmin(ItemModel order);
+
+	boolean checkHasMoreItems(ItemModel item);
+
+	int getLatestItemId();
+
+	CategoryModel getAllSubCategoryForAdmin(String categoryName);
+
+	boolean enableDisableSubcategory(String subcategory, boolean hidden);
+
+	List<ItemModel> getAllItemsAdmin(ItemModel item);
+
+	boolean enableDisableItem(String itemId, boolean hidden);
+
+	boolean deleteSubcategory(String subcategory);
+
+	boolean deleteItem(String itemId);
+
+	boolean insertNotification(ItemModel item);
 }

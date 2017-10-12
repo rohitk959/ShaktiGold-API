@@ -170,4 +170,30 @@ public class UserDAOImpl implements UserDAO{
 		}
 		return rowsUpdated == 1? true : false;
 	}
+
+	@Override
+	public String getEmailByInvoiceNumber(String invoiceNumber) {
+		String email = null;
+		
+		try {
+			email = jdbcTemplate.queryForObject(UserQuery.GET_EMAIL_BY_INVOICE_NUMBER, String.class, invoiceNumber);
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return email;
+	}
+
+	@Override
+	public UserDetailsModel getSingleUserProfileByMobile(String mobileNumber) {
+		UserDetailsModel userDetail = null;
+		
+		try {
+			userDetail = jdbcTemplate.queryForObject(UserQuery.FETCH_USER_DETAILS_BY_MOBILE, new Object[] { mobileNumber }, new UserDetailsMapper());
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+		}
+		
+		return userDetail;
+	}
 }

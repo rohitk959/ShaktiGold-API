@@ -16,6 +16,7 @@ public class ItemMapper implements RowMapper<ItemModel>{
 		item.setItemName(rs.getString("item_name"));
 		item.setItemId(rs.getInt("item_id"));
 		item.setImgUrl(rs.getString("img_url"));
+		item.setRecordActive(rs.getInt("record_active") == 1? true : false);
 		
 		return item;
 	}
