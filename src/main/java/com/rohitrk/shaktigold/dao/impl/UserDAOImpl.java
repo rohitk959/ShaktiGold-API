@@ -17,13 +17,9 @@ import com.rohitrk.shaktigold.query.UserQuery;
 @Repository("userDao")
 public class UserDAOImpl implements UserDAO{
 
+	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
 	@Override
 	public UserAccountModel getSingleUserByEmail(String email) {
 		

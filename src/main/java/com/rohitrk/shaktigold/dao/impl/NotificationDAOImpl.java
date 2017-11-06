@@ -16,13 +16,9 @@ import com.rohitrk.shaktigold.query.NotificationQuery;
 
 @Repository("notificationDao")
 public class NotificationDAOImpl implements NotificationDAO {
-	private JdbcTemplate jdbcTemplate;
-	
 	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
-	
+	private JdbcTemplate jdbcTemplate;
+
 	@Override
 	public int getNotificationCount(String email) {
 		int notificationCount = 0;

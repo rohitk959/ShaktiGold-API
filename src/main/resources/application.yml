@@ -1,0 +1,57 @@
+spring:
+  profiles:
+    active: "local"
+  main:
+    banner-mode: "off"
+
+---
+# LOCAL ENVIRONMENT
+
+spring:
+  profiles: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://shaktigold-mysql.cbkvzb2k2lal.ap-south-1.rds.amazonaws.com:3306/ShaktiGold?useSSL=false
+    username: rohit_959
+    password: Wavedeo_412
+server:
+  port: 8080
+  contextPath: /ShaktiGold
+sms:
+  url: http://api.textlocal.in/send/?
+  username: rohitkalaghatkar@gmail.com
+  password: Wavedeo@412
+  sender: TXTLCL
+  receiver: 918867422004
+app:
+  ipaddress: localhost
+  protocol: http
+  port: 8080
+  work.dir: file:D:/ShaktiGold/
+
+---
+# PROD ENVIRONMENT
+
+spring:
+  profiles: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://shaktigold-mysql.cbkvzb2k2lal.ap-south-1.rds.amazonaws.com:3306/ShaktiGold?useSSL=false
+    username: rohit_959
+    password: Wavedeo_412
+server:
+  port: 8080
+  contextPath: /ShaktiGold
+sms:
+  url: http://api.textlocal.in/send/?
+  username: rohitkalaghatkar@gmail.com
+  password: Wavedeo@412
+  sender: TXTLCL
+  receiver: 918867422004
+app:
+  ipaddress: 35.154.159.86
+  protocol: http
+  port: 8080
+  work.dir: file:/opt/tomcat/apache-tomcat-8.5.11/webapps/shaktigold-resources/
+
+---

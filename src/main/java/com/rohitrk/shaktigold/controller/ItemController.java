@@ -10,11 +10,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +25,7 @@ import com.rohitrk.shaktigold.service.ItemService;
 import com.rohitrk.shaktigold.service.UserService;
 import com.rohitrk.shaktigold.validations.UserValidator;
 
+@CrossOrigin
 @RestController
 public class ItemController {
 	@Autowired

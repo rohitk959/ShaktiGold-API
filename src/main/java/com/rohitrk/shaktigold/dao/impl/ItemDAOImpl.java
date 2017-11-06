@@ -29,12 +29,8 @@ import com.rohitrk.shaktigold.util.Constants;
 @Repository("itemDao")
 public class ItemDAOImpl implements ItemDAO {
 
-	private JdbcTemplate jdbcTemplate;
-
 	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
+	private JdbcTemplate jdbcTemplate;
 
 	@Override
 	public boolean insertCategory(CategoryModel category) {

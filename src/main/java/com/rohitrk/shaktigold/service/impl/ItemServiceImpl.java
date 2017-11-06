@@ -39,11 +39,11 @@ public class ItemServiceImpl implements ItemService {
 	@Autowired
 	UserService userService;
 
-	@Value("${host.ipaddress}")
+	@Value("${app.ipaddress}")
 	private String hostName;
-	@Value("${host.port}")
+	@Value("${app.port}")
 	private String port;
-	@Value("${host.protocol}")
+	@Value("${app.protocol}")
 	private String protocol;
 	@Value("${sms.username}")
 	private String username;
