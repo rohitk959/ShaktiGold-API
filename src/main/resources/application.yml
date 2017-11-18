@@ -11,12 +11,16 @@ spring:
   profiles: local
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://shaktigold-mysql.cbkvzb2k2lal.ap-south-1.rds.amazonaws.com:3306/ShaktiGold?useSSL=false
-    username: rohit_959
+    url: jdbc:mysql://localhost:3306?useSSL=false
+    username: rohit
     password: Wavedeo_412
+   # schema: shaktigold
 server:
   port: 8080
   contextPath: /ShaktiGold
+flyway:
+  enabled: true
+  schemas: [ShaktiGold]
 sms:
   url: http://api.textlocal.in/send/?
   username: rohitkalaghatkar@gmail.com
@@ -27,7 +31,7 @@ app:
   ipaddress: localhost
   protocol: http
   port: 8080
-  work.dir: file:D:/ShaktiGold/
+  work.dir: D:/ShaktiGold_artifacts/
 
 ---
 # PROD ENVIRONMENT
@@ -39,6 +43,7 @@ spring:
     url: jdbc:mysql://shaktigold-mysql.cbkvzb2k2lal.ap-south-1.rds.amazonaws.com:3306/ShaktiGold?useSSL=false
     username: rohit_959
     password: Wavedeo_412
+    schema: shaktigold
 server:
   port: 8080
   contextPath: /ShaktiGold

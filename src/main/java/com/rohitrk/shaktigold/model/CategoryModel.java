@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class CategoryModel {
-	private String guid;
 	private String categoryName;
 	private String description;
 	private boolean recordActive;

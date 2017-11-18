@@ -365,7 +365,7 @@ public class ItemController {
 			}
 
 			try {
-				if (null != itemsInCart && !itemsInCart.isEmpty()) {
+				if (null != itemsInCart) {
 					JsonNode rootNode = jsonMapper.valueToTree(itemsInCart);
 					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {

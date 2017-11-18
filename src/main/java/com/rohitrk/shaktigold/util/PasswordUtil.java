@@ -6,9 +6,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class PasswordUtil {
 	// The higher the number of iterations the more
 	// expensive computing the hash is for us and
@@ -35,7 +37,12 @@ public class PasswordUtil {
 			throw new IllegalStateException("Stored Password hash or Password Salt is missing");
 		}
 		String hashOfInput = hash(password, storedSalt);
-		return hashOfInput.equals(storedHash);
+		if(hashOfInput.equals(storedHash)) {
+			log.warn("Invalid Username and Password.");
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public static String hash(String password, String salt) throws Exception {

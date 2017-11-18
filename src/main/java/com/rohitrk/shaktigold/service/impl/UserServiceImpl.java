@@ -2,6 +2,7 @@ package com.rohitrk.shaktigold.service.impl;
 
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.rohitrk.shaktigold.service.UserService;
 import com.rohitrk.shaktigold.util.Constants;
 import com.rohitrk.shaktigold.util.PasswordUtil;
 
+@Slf4j
 @Service("userService")
 public class UserServiceImpl implements UserService {
 	
@@ -158,6 +160,8 @@ public class UserServiceImpl implements UserService {
 					userAccount.setPasswordSalt(PasswordUtil.getSalt());
 					userAccount.setPasswordHash(PasswordUtil.hash(userAccount.getNewPassword(), userAccount.getPasswordSalt()));
 					passwordChanged = userDAO.updatePassword(userAccount);
+				} else {
+					log.warn("Invalid username and password. {}", userAccount.getEmail());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

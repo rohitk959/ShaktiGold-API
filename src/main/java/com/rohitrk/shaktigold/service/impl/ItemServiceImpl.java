@@ -13,6 +13,7 @@ import java.util.ListIterator;
 
 import javax.imageio.ImageIO;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,7 @@ import com.rohitrk.shaktigold.service.UserService;
 import com.rohitrk.shaktigold.util.CommonUtil;
 import com.rohitrk.shaktigold.util.Constants;
 
+@Slf4j
 @Service("itemService")
 public class ItemServiceImpl implements ItemService {
 
@@ -57,6 +59,8 @@ public class ItemServiceImpl implements ItemService {
 	private String smsUrl;
 	@Value("${app.work.dir}")
 	private String appWorkDir;
+	@Value("${server.contextPath}")
+	private String serverContextPath;
 
 	@Override
 	public boolean insertCategory(CategoryModel category) {
@@ -93,13 +97,13 @@ public class ItemServiceImpl implements ItemService {
 				if (itemDAO.insertSubCategoryProperty(category)) {
 					subcategoryAdded = true;
 				} else {
-					// Failed to add subcategory properties to database
+					log.warn("Failed to write subcategory properties to disk");
 				}
 			} else {
-				// Failed to add subcategory to database
+				log.warn("Failed to write subcategory to disk. Subcategory already exits -> {}", category.getSubcategory());
 			}
 		} else {
-			// Failed to write image to disk
+			log.warn("Filed to write image to disk.");
 		}
 		
 		return subcategoryAdded;
@@ -124,7 +128,7 @@ public class ItemServiceImpl implements ItemService {
 
 		for (SubCategoryModel subcategory : categoryVO.getSubcategory()) {
 			if (null != subcategory.getImgUrl()) {
-				subcategory.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold"
+				subcategory.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + this.serverContextPath
 						+ subcategory.getImgUrl());
 			}
 		}
@@ -173,6 +177,10 @@ public class ItemServiceImpl implements ItemService {
 			
 			// write the image to a file
 			File outputfile = new File( appWorkDir + absoluteFileName );
+			File outputDir = new File(StringUtils.substringBeforeLast(outputfile.getAbsolutePath(),"\\"));
+			if(!outputDir.exists()) {
+				outputDir.mkdirs();
+			}
 			ImageIO.write(image, StringUtils.substringAfterLast(absoluteFileName, "."), outputfile);
 			imageWrite = true;
 		} catch (IOException e) {
@@ -205,7 +213,7 @@ public class ItemServiceImpl implements ItemService {
 
 			lItem.setItemProperty(lItemDetail.getItemProperty());
 			lItem.setImgUrl(
-					this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold" + lItem.getImgUrl());
+					this.protocol + "://" + this.hostName + ":" + this.port + this.serverContextPath + lItem.getImgUrl());
 		}
 		
 		return items;
@@ -219,7 +227,7 @@ public class ItemServiceImpl implements ItemService {
 	@Override
 	public ItemModel getItemDetails(ItemModel item) {
 		ItemModel lItem = itemDAO.getItemDetails(item);
-		lItem.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold" + lItem.getImgUrl());
+		lItem.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + this.serverContextPath + lItem.getImgUrl());
 		return lItem;
 	}
 
@@ -242,7 +250,7 @@ public class ItemServiceImpl implements ItemService {
 
 		for (ItemModel lItem : cartItems) {
 			lItem.setImgUrl(
-					this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold" + lItem.getImgUrl());
+					this.protocol + "://" + this.hostName + ":" + this.port + this.serverContextPath + lItem.getImgUrl());
 		}
 
 		return cartItems;
@@ -356,7 +364,7 @@ public class ItemServiceImpl implements ItemService {
 
 		for (SubCategoryModel subcategory : categoryVO.getSubcategory()) {
 			if (null != subcategory.getImgUrl()) {
-				subcategory.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold"
+				subcategory.setImgUrl(this.protocol + "://" + this.hostName + ":" + this.port + this.serverContextPath
 						+ subcategory.getImgUrl());
 			}
 		}
@@ -391,7 +399,7 @@ public class ItemServiceImpl implements ItemService {
 
 			lItem.setItemProperty(lItemDetail.getItemProperty());
 			lItem.setImgUrl(
-					this.protocol + "://" + this.hostName + ":" + this.port + "/ShaktiGold" + lItem.getImgUrl());
+					this.protocol + "://" + this.hostName + ":" + this.port + this.serverContextPath + lItem.getImgUrl());
 		}
 		
 		return items;

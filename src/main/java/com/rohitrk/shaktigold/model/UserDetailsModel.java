@@ -9,8 +9,6 @@ import javax.validation.constraints.Size;
 
 @Data
 public class UserDetailsModel {
-
-	private String guid;
 	@NotNull
 	private String addressLine1;
 	private String addressLine2;
