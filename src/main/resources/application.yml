@@ -40,13 +40,16 @@ spring:
   profiles: prod
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://shaktigold-mysql.cbkvzb2k2lal.ap-south-1.rds.amazonaws.com:3306/ShaktiGold?useSSL=false
+    url: jdbc:mysql://shaktigold-mysql.cbkvzb2k2lal.ap-south-1.rds.amazonaws.com:3306?useSSL=false
     username: rohit_959
     password: Wavedeo_412
     schema: shaktigold
 server:
   port: 8080
   contextPath: /ShaktiGold
+flyway:
+  enabled: true
+  schemas: [ShaktiGold]
 sms:
   url: http://api.textlocal.in/send/?
   username: rohitkalaghatkar@gmail.com
