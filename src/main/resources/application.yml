@@ -2,7 +2,7 @@ spring:
   profiles:
     active: "local"
   main:
-    banner-mode: "off"
+    #banner-mode: "off"
 
 ---
 # LOCAL ENVIRONMENT
