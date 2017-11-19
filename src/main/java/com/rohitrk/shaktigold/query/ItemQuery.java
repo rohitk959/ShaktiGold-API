@@ -50,7 +50,7 @@ public class ItemQuery {
 
 	public static final String ENABLE_DISABLE_SUBCATEGORY = "UPDATE subcategory SET record_active = ? WHERE subcategory_name = ?";
 
-	public static final String GET_ALL_ITEMS_ADMIN = "SELECT item.item_name item_name, item.id as item_id, item.img_url img_url, item.record_active record_active FROM item item INNER JOIN subcategory scat ON item.subcategory_fk = scat.id INNER JOIN category cat ON scat.category_fk = cat.id WHERE scat.subcategory_name = ? AND cat.category_name = ? ORDER BY if";
+	public static final String GET_ALL_ITEMS_ADMIN = "SELECT item.item_name item_name, item.id as item_id, item.img_url img_url, item.record_active record_active FROM item item INNER JOIN subcategory scat ON item.subcategory_fk = scat.id INNER JOIN category cat ON scat.category_fk = cat.id WHERE scat.subcategory_name = ? AND cat.category_name = ? ORDER BY item.id";
 
 	public static final String ENABLE_DISABLE_ITEM = "UPDATE item SET record_active = ? WHERE id = ?";
 

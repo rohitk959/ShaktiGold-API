@@ -3,6 +3,7 @@ package com.rohitrk.shaktigold.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -56,28 +57,28 @@ public class NotificationController {
 		return json;
 	}
 	
-	@RequestMapping(value = "/getNotificationList.htm", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/getNotificationList.htm", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public String getNotificationList(@RequestBody @RequestParam String email, @RequestParam String sessionId) {
 		List<NotificationModel> notify = null;
-//		if (userService.validateUserSession(email, sessionId)) {
-//			notify = notifyService.getNotificationList(email);
-//
-//			try {
-//				if (-1 != count) {
-//					result.put("result", "SUCCESS");
-//					Map<String, Integer> countResult = new HashMap<String, Integer>();
-//					countResult.put("notificationCount", count);
-//					result.put("message", countResult);
-//					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
-//				} else {
-//					result.put("result", "FAILURE");
-//					result.put("message", "Failed to get the notification count.");
-//					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
-//				}
-//			} catch (JsonProcessingException e) {
-//				e.printStackTrace();
-//			}
-//		}
+		if (userService.validateUserSession(email, sessionId)) {
+			notify = notifyService.getNotificationList(email);
+
+			try {
+				if (Objects.nonNull(notify)) {
+					result.put("result", "SUCCESS");
+					Map<String, List<NotificationModel>> countResult = new HashMap<>();
+					countResult.put("notificationList", notify);
+					result.put("message", countResult);
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				} else {
+					result.put("result", "FAILURE");
+					result.put("message", "Failed to get the notification List.");
+					json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+				}
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		return json;
 	}
