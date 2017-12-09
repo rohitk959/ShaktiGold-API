@@ -135,7 +135,6 @@ public class UserController {
 					if(null != userProfile) {
 						JsonNode rootNode = jsonMapper.valueToTree(userProfile);
 						ObjectNode mainObject = (ObjectNode) rootNode;
-						mainObject.remove("guid");
 						mainObject.remove("role");
 						mainObject.remove("password");
 						mainObject.remove("newPassword");
@@ -146,7 +145,6 @@ public class UserController {
 						for (JsonNode node : rootNode) {
 							if (node instanceof ObjectNode) {
 								ObjectNode object = (ObjectNode) node;
-								object.remove("guid");
 								object.remove("updatedDate");
 							}
 						}

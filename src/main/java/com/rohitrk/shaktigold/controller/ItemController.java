@@ -82,7 +82,6 @@ public class ItemController {
 				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
 						ObjectNode object = (ObjectNode) node;
-						object.remove("guid");
 						object.remove("recordActive");
 						object.remove("sessionId");
 						object.remove("email");
@@ -149,7 +148,6 @@ public class ItemController {
 				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
 						ObjectNode object = (ObjectNode) node;
-						object.remove("guid");
 						object.remove("recordActive");
 						object.remove("properties");
 					}
@@ -186,7 +184,6 @@ public class ItemController {
 					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
 							ObjectNode object = (ObjectNode) node;
-							object.remove("guid");
 							object.remove("subcategory_fk");
 						}
 					}
@@ -251,7 +248,6 @@ public class ItemController {
 					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
 							ObjectNode object = (ObjectNode) node;
-							object.remove("guid");
 							object.remove("email");
 							object.remove("sessionId");
 							object.remove("categoryName");
@@ -301,7 +297,6 @@ public class ItemController {
 					JsonNode rootNode = jsonMapper.valueToTree(itemDetils);
 						if (rootNode instanceof ObjectNode) {
 							ObjectNode object = (ObjectNode) rootNode;
-							object.remove("guid");
 							object.remove("email");
 							object.remove("sessionId");
 							object.remove("categoryName");
@@ -370,7 +365,6 @@ public class ItemController {
 					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
 							ObjectNode object = (ObjectNode) node;
-							object.remove("guid");
 							object.remove("email");
 							object.remove("sessionId");
 							object.remove("categoryName");
@@ -517,7 +511,6 @@ public class ItemController {
 					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
 							ObjectNode object = (ObjectNode) node;
-							object.remove("guid");
 							object.remove("email");
 							object.remove("sessionId");
 							object.remove("categoryName");
@@ -581,7 +574,6 @@ public class ItemController {
 				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
 						ObjectNode object = (ObjectNode) node;
-						object.remove("guid");
 						object.remove("email");
 						object.remove("sessionId");
 						object.remove("categoryName");
@@ -639,7 +631,6 @@ public class ItemController {
 			if (null != userProfile) {
 				JsonNode rootNode = jsonMapper.valueToTree(userProfile);
 				ObjectNode mainObject = (ObjectNode) rootNode;
-				mainObject.remove("guid");
 				mainObject.remove("role");
 				mainObject.remove("password");
 				mainObject.remove("newPassword");
@@ -650,7 +641,6 @@ public class ItemController {
 				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
 						ObjectNode object = (ObjectNode) node;
-						object.remove("guid");
 						object.remove("updatedDate");
 					}
 				}
@@ -686,7 +676,6 @@ public class ItemController {
 				for (JsonNode node : rootNode) {
 					if (node instanceof ObjectNode) {
 						ObjectNode object = (ObjectNode) node;
-						object.remove("guid");
 						object.remove("properties");
 					}
 				}
@@ -750,7 +739,6 @@ public class ItemController {
 					for (JsonNode node : rootNode) {
 						if (node instanceof ObjectNode) {
 							ObjectNode object = (ObjectNode) node;
-							object.remove("guid");
 							object.remove("email");
 							object.remove("sessionId");
 							object.remove("categoryName");

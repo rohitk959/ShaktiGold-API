@@ -116,7 +116,7 @@ public class ItemDAOImpl implements ItemDAO {
     @Override
     public CategoryModel getAllSubCategory(String categoryName) {
 
-        CategoryModel subcategory = null;
+        CategoryModel subcategory = new CategoryModel();
 
         try {
             subcategory = jdbcTemplate.queryForObject(ItemQuery.GET_ALL_SUB_CATEGORY, new Object[]{categoryName},
