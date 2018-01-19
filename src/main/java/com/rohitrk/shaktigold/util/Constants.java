@@ -18,5 +18,7 @@ public class Constants {
 	public static final int READ_YES = 1;
 	public static final int READ_NO = 0;
 	public static final String ADMIN_EMAIL = "SG-Admin";
-	
+
+	public static final String ROLE_USER = "ROLE_USER";
+	public static final String ROLE_ADMIN = "ROLE_ADMIN";
 }

@@ -2,67 +2,25 @@ package com.rohitrk.shaktigold.service;
 
 import java.util.List;
 
-import com.rohitrk.shaktigold.model.CategoryModel;
-import com.rohitrk.shaktigold.model.ItemModel;
-import com.rohitrk.shaktigold.model.OrderModel;
-import com.rohitrk.shaktigold.model.SubCategoryProperty;
-import com.rohitrk.shaktigold.model.UserAccountModel;
+import com.rohitrk.shaktigold.model.*;
 
 public interface ItemService {
 
-	boolean insertCategory(CategoryModel category);
+	void addItem(String category, String subcategory, ItemModel item);
 
-	List<CategoryModel> getAllCategory();
+	List<ItemModel> getAllItemsUser(String category, String subcategory, int limit, int offset);
 
-	boolean insertSubCategory(CategoryModel category);
-	
-	boolean updateSubCategory(CategoryModel category);
-
-	CategoryModel getAllSubCategory(CategoryModel category);
-
-	boolean registerItem(ItemModel item);
-
-	List<SubCategoryProperty> getItemTemplate(ItemModel item);
-
-	List<ItemModel> getAllItems(ItemModel item);
-
-	ItemModel getItemDetails(ItemModel item);
-
-	boolean putItemToCart(ItemModel item);
-
-	List<ItemModel> getItemsFromCart(ItemModel item);
-
-	boolean deleteItemFromCart(ItemModel item);
-
-	boolean updateItemQtyInCart(ItemModel item);
-
-	boolean placeOrder(ItemModel item);
-
-	boolean updateOrder(OrderModel order);
-
-	List<ItemModel> getAllUserOrder(ItemModel order);
+	ItemModel getItemDetails(int itemId);
 
 	boolean sendEstimateSms(ItemModel item);
 
-	List<ItemModel> getAllAdminOrder(ItemModel order);
+	boolean hasMoreItems(String category, String subcategory, int limit, int offset);
 
-	boolean updateOrderAdmin(ItemModel order);
+	List<ItemModel> getAllItemsAdmin(String category, String Subcategory);
 
-	UserAccountModel getUserProfileByInvoiceNumber(ItemModel order);
+	void enableDisableItem(String itemId, boolean enabled);
 
-	boolean hasMoreItems(ItemModel item);
-
-	CategoryModel getAllSubCategoryForAdmin(CategoryModel category);
-
-	boolean enableDisableSubcategory(String subcategory, boolean hidden);
-
-	List<ItemModel> getAllItemsAdmin(ItemModel item);
-
-	boolean enableDisableItem(String itemId, boolean hidden);
-
-	boolean deleteSubcategory(String subcategory);
-
-	boolean deleteItem(String itemId);
+	void deleteItem(String itemId);
 
 	boolean sendEstimateDB(ItemModel item);
 }

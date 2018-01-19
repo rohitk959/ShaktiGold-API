@@ -22,10 +22,9 @@ CREATE TABLE IF NOT EXISTS `ShaktiGold`.`user_account` (
   `first_name` VARCHAR(64) NOT NULL,
   `last_name` VARCHAR(64) NOT NULL,
   `email` VARCHAR(128) NOT NULL,
-  `role` VARCHAR(45) NOT NULL,
-  `password_salt` VARBINARY(512) NOT NULL,
-  `password_hash` VARCHAR(1024) NOT NULL,
-  `created_date` DATETIME NOT NULL,
+  `password` VARCHAR(128) NOT NULL,
+  `created_date` DATETIME NOT NULL DEFAULT now(),
+  `record_active` TINYINT(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -39,10 +38,10 @@ CREATE UNIQUE INDEX `email_UNIQUE` ON `ShaktiGold`.`user_account` (`email` ASC);
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ShaktiGold`.`user_details` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `address_line_1` VARCHAR(128) NOT NULL,
+  `address_line_1` VARCHAR(128) NULL,
   `address_line_2` VARCHAR(128) NULL,
-  `state` VARCHAR(64) NOT NULL,
-  `country` VARCHAR(64) NOT NULL,
+  `state` VARCHAR(64) NULL,
+  `country` VARCHAR(64) NULL,
   `mobile_number` VARCHAR(10) NOT NULL,
   `alt_mobile_number` VARCHAR(10) NULL,
   `landline_number` VARCHAR(16) NULL,
@@ -287,6 +286,26 @@ CREATE TABLE IF NOT EXISTS `ShaktiGold`.`notifications` (
 ENGINE = InnoDB;
 
 CREATE UNIQUE INDEX `id_UNIQUE` ON `ShaktiGold`.`notifications` (`id` ASC);
+
+
+-- -----------------------------------------------------
+-- Table `ShaktiGold`.`user_roles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ShaktiGold`.`user_roles` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `role` VARCHAR(32) NOT NULL,
+  `user_account_fk` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `ur_user_account_fk`
+    FOREIGN KEY (`user_account_fk`)
+    REFERENCES `ShaktiGold`.`user_account` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+CREATE INDEX `ur_user_account_fk_idx` ON `ShaktiGold`.`user_roles` (`user_account_fk` ASC);
+
+CREATE UNIQUE INDEX `id_UNIQUE` ON `ShaktiGold`.`user_roles` (`id` ASC);
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

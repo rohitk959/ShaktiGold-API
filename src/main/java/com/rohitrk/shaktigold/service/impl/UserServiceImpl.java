@@ -1,181 +1,113 @@
 package com.rohitrk.shaktigold.service.impl;
 
-import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.rohitrk.shaktigold.dao.UserDAO;
+import com.rohitrk.shaktigold.expceptionHandler.ApplicationException;
 import com.rohitrk.shaktigold.model.UserAccountModel;
 import com.rohitrk.shaktigold.model.UserDetailsModel;
 import com.rohitrk.shaktigold.service.UserService;
 import com.rohitrk.shaktigold.util.Constants;
-import com.rohitrk.shaktigold.util.PasswordUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Slf4j
 @Service("userService")
 public class UserServiceImpl implements UserService {
-	
-	
-	@Autowired
-	UserDAO userDAO;
 
-	@Override
-	public boolean userExists(UserAccountModel userAccount) {
-		UserAccountModel existingUser = new UserAccountModel();
-		existingUser = getSingleUserByEmail(userAccount.getEmail());
+    @Autowired
+    UserDAO userDAO;
 
-		if (existingUser != null) {
-			return true;
-		}
-		
-		UserDetailsModel existingUserProfile = getSingleUserProfileByMobile(userAccount.getUserDetailsModel().getMobileNumber());
-		
-		if(existingUserProfile != null && existingUserProfile.getMobileNumber().equals(userAccount.getUserDetailsModel().getMobileNumber())) {
-			return true;
-		}
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
-		return false;
-	}
+    @Override
+    public boolean userExists(UserAccountModel userAccount) {
+        UserAccountModel existingUser = null;
+        existingUser = userDAO.getSingleUserByEmail(userAccount.getEmail());
 
-	private UserDetailsModel getSingleUserProfileByMobile(String email) {
-		return userDAO.getSingleUserProfileByMobile(email);
-	}
+        if (existingUser != null) {
+            return true;
+        }
 
-	private UserAccountModel getSingleUserByEmail(String email) {
-		return userDAO.getSingleUserByEmail(email);
-	}
-	
-	@Override
-	public boolean registerUser(UserAccountModel userAccount) {
-		boolean result = false;
-		try {
-			userAccount.setPasswordSalt(PasswordUtil.getSalt());
-			userAccount.setPasswordHash(PasswordUtil.hash(userAccount.getPassword(), userAccount.getPasswordSalt()));
-			userAccount.setPassword(null);
-			
-			if(registerSingleUser(userAccount)) {
-				userAccount.getUserDetailsModel().setAddressLine1("");
-				userAccount.getUserDetailsModel().setState("");
-				userAccount.getUserDetailsModel().setCountry("");
-				result = userDAO.insertUserProfile(userAccount);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
+        UserDetailsModel existingUserProfile = userDAO.getSingleUserProfileByMobile(userAccount.getUserDetailsModel().getMobileNumber());
 
-	private boolean registerSingleUser(UserAccountModel userAccount) {
-		return userDAO.registerSingleUser(userAccount);
-	}
+        if (existingUserProfile != null && existingUserProfile.getMobileNumber().equals(userAccount.getUserDetailsModel().getMobileNumber())) {
+            return true;
+        }
 
-	@Override
-	public boolean updateProfile(UserAccountModel userAccount) {
-		boolean result = false;
-		
-		 UserDetailsModel user = getSingleUserProfileByEmail(userAccount.getEmail());
-		
-		if(user == null){
-			result = userDAO.insertUserProfile(userAccount);
-		} else {
-			result = userDAO.updateUserProfile(userAccount);
-		}
-		
-		return result;
-	}
+        return false;
+    }
 
-	@Override
-	public String enableLogin(UserAccountModel userAccount) {
-		boolean validPassword = false;
-		String sessionId = null;
-		UserAccountModel user = new UserAccountModel();
-		
-		user = getSingleUserByEmail(userAccount.getEmail());
-		
-		if(user != null) {
-			try {
-				validPassword = PasswordUtil.check(userAccount.getPassword(), user.getPasswordHash(), user.getPasswordSalt());
-				
-				if(validPassword) {
-					sessionId = UUID.randomUUID().toString();
-					userDAO.deleteUserSession(userAccount.getEmail());
-					userDAO.createUserSession(userAccount.getEmail(), sessionId);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return sessionId;
-	}
-	
-	@Override
-	public boolean validateUserSession(String email, String sessionId) {
-		String storedSessionId = null;
-		
-		if(email.equalsIgnoreCase(Constants.ADMIN_EMAIL))
-			return true;
-		
-		storedSessionId = userDAO.getUserSession(email);
-		
-		if(storedSessionId != null) {
-			if(0 ==  StringUtils.compare(sessionId, storedSessionId)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	private UserDetailsModel getSingleUserProfileByEmail(String email) {
-		
-		return userDAO.getSingleUserProfileByEmail(email);
-	}
+    @Override
+    @Transactional
+    public void registerUser(UserAccountModel userAccount) {
+        userAccount.setPassword(passwordEncoder.encode(userAccount.getPassword()));
 
-	@Override
-	public UserAccountModel getUserDetails(String email) {
-		UserAccountModel user = getSingleUserByEmail(email);
-		user.setPasswordHash(null);
-		user.setPasswordSalt(null);
-		user.setUserDetailsModel(userDAO.getSingleUserProfileByEmail(email));
-		return user;
-	}
+        userDAO.registerSingleUser(userAccount);
 
-	@Override
-	public boolean changePassword(UserAccountModel userAccount) {
-		boolean validPassword = false;
-		boolean passwordChanged = false;
-		UserAccountModel user = new UserAccountModel();
-		
-		user = getSingleUserByEmail(userAccount.getEmail());
-		
-		if(user != null) {
-			try {
-				validPassword = PasswordUtil.check(userAccount.getPassword(), user.getPasswordHash(), user.getPasswordSalt());
-				
-				if(validPassword) {
-					userAccount.setPasswordSalt(PasswordUtil.getSalt());
-					userAccount.setPasswordHash(PasswordUtil.hash(userAccount.getNewPassword(), userAccount.getPasswordSalt()));
-					passwordChanged = userDAO.updatePassword(userAccount);
-				} else {
-					log.warn("Invalid username and password. {}", userAccount.getEmail());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return passwordChanged;
-	}
-	
-	@Override
-	public String getEmailByInvoiceNumber(String invoiceNumber) {
-		
-		String email = userDAO.getEmailByInvoiceNumber(invoiceNumber);
-		
-		return email;
-	}
+        if (userAccount.getRole().equalsIgnoreCase("admin"))
+            userDAO.insertUserRoles(userAccount.getEmail(), Constants.ROLE_USER, Constants.ROLE_ADMIN);
+        else
+            userDAO.insertUserRoles(userAccount.getEmail(), Constants.ROLE_USER);
+
+        userDAO.insertUserProfile(userAccount);
+    }
+
+    @Override
+    public void updateProfile(UserDetailsModel userDetails, String email) {
+        userDAO.updateUserProfile(userDetails, email);
+    }
+
+    @Override
+    public void enableLogin(String email, String password) {
+        UserAccountModel user = userDAO.getSingleUserByEmail(email);
+
+        if (Objects.isNull(user) || !passwordEncoder.matches(password, user.getPassword()))
+            throw new ApplicationException(400, "Bad Credentials.", "Invalid email ID or Password.", null);
+    }
+
+    @Override
+    public UserAccountModel getUserDetails(String email) {
+        UserAccountModel user = userDAO.getSingleUserByEmail(email);
+        user.setUserDetailsModel(userDAO.getSingleUserProfileByEmail(email));
+
+        user.setPassword(null);
+        user.setNewPassword(null);
+        user.setRole(null);
+        user.setCreatedDate(null);
+        user.getUserDetailsModel().setUpdatedDate(null);
+        return user;
+    }
+
+    @Override
+    public void changePassword(UserAccountModel userAccount) {
+        UserAccountModel user = userDAO.getSingleUserByEmail(userAccount.getEmail());
+
+        if (Objects.isNull(user))
+            throw new ApplicationException(500, HttpStatus.INTERNAL_SERVER_ERROR.name(), "Internal Server Error", null);
+
+        if (!passwordEncoder.matches(userAccount.getPassword(), user.getPassword()))
+            throw new IllegalArgumentException("Old Password do not match.");
+
+        userDAO.updatePassword(passwordEncoder.encode(userAccount.getNewPassword()), userAccount.getEmail());
+    }
+
+    @Override
+    public UserAccountModel getUserProfileByInvoiceNumber(int invoiceNumber) {
+        String email = getEmailByInvoiceNumber(invoiceNumber);
+        return getUserDetails(email);
+    }
+
+    @Override
+    public String getEmailByInvoiceNumber(int invoiceNumber) {
+
+        String email = userDAO.getEmailByInvoiceNumber(invoiceNumber);
+
+        return email;
+    }
 }

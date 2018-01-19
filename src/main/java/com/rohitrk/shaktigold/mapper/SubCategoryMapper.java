@@ -8,29 +8,21 @@ import java.util.List;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.rohitrk.shaktigold.model.CategoryModel;
-import com.rohitrk.shaktigold.model.SubCategoryModel;
+import com.rohitrk.shaktigold.model.SubcategoryModel;
 
-public class SubCategoryMapper implements RowMapper<CategoryModel>{
+public class SubCategoryMapper implements RowMapper<SubcategoryModel>{
 
 	@Override
-	public CategoryModel mapRow(ResultSet rs, int rowNum) throws SQLException {
-		CategoryModel category = new CategoryModel();
-		List<SubCategoryModel> subcategoryList = new ArrayList<SubCategoryModel>();
+	public SubcategoryModel mapRow(ResultSet rs, int rowNum) throws SQLException {
+		SubcategoryModel subcategory = new SubcategoryModel();
 		
-		do {
-			category.setCategoryName(rs.getString("category_name"));
-			category.setDescription(rs.getString("category_description"));
-			
-			SubCategoryModel subCategory = new SubCategoryModel();
+			SubcategoryModel subCategory = new SubcategoryModel();
 			subCategory.setSubcategoryName(rs.getString("subcategory_name"));
 			subCategory.setDescription(rs.getString("subcategory_description"));
 			subCategory.setImgUrl(rs.getString("img_url"));
 			subCategory.setRecordActive(rs.getInt("subcategory_record_active") == 1? true : false);
-			subcategoryList.add(subCategory);
-		} while(rs.next());
-		
-		category.setSubcategory(subcategoryList);
-		return category;
+
+		return subcategory;
 	}
 
 }

@@ -1,10 +1,15 @@
 package com.rohitrk.shaktigold.util;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.security.SecureRandom;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.imageio.ImageIO;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -38,9 +43,9 @@ public class PasswordUtil {
 		}
 		String hashOfInput = hash(password, storedSalt);
 		if(hashOfInput.equals(storedHash)) {
-			log.warn("Invalid Username and Password.");
 			return true;
 		} else {
+			log.warn("Invalid Username and Password.");
 			return false;
 		}
 	}

@@ -1,22 +1,25 @@
 package com.rohitrk.shaktigold.service;
 
 import com.rohitrk.shaktigold.model.UserAccountModel;
+import com.rohitrk.shaktigold.model.UserDetailsModel;
+
+import java.util.List;
 
 public interface UserService {
 
 	public boolean userExists(UserAccountModel userAccount);
 
-	public boolean registerUser(UserAccountModel userAccount);
+	public void registerUser(UserAccountModel userAccount);
 
-	public boolean updateProfile(UserAccountModel userAccount);
+	public void updateProfile(UserDetailsModel userDetails, String email);
 
-	public String enableLogin(UserAccountModel userAccount);
-	
-	public boolean validateUserSession(String email, String sessionId);
-	
+	public void enableLogin(String email, String password);
+
 	public UserAccountModel getUserDetails(String email);
 
-	public boolean changePassword(UserAccountModel userAccount);
+	public void changePassword(UserAccountModel userAccount);
 
-	public String getEmailByInvoiceNumber(String invoiceNumber);
+	public String getEmailByInvoiceNumber(int invoiceNumber);
+
+    UserAccountModel getUserProfileByInvoiceNumber(int invoiceNumber);
 }

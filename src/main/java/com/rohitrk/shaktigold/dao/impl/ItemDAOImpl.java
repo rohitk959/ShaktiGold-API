@@ -1,17 +1,22 @@
 package com.rohitrk.shaktigold.dao.impl;
 
 import com.rohitrk.shaktigold.dao.ItemDAO;
+import com.rohitrk.shaktigold.expceptionHandler.ApplicationException;
 import com.rohitrk.shaktigold.mapper.*;
 import com.rohitrk.shaktigold.model.*;
 import com.rohitrk.shaktigold.query.ItemQuery;
 import com.rohitrk.shaktigold.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository("itemDao")
 public class ItemDAOImpl implements ItemDAO {
 
@@ -19,320 +24,55 @@ public class ItemDAOImpl implements ItemDAO {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public boolean insertCategory(CategoryModel category) {
-        boolean result = false;
-
+    public void insertItem(String category, String subcategory, ItemModel item) {
         try {
-            jdbcTemplate.update(ItemQuery.INSERT_CATEGORY,
-                    new Object[]{category.getCategoryName(), category.getDescription(), category.getImgUrl()});
-            result = true;
+            jdbcTemplate.update(ItemQuery.INSERT_ITEM,
+                    new Object[]{item.getItemName(), item.getImgUrl(), subcategory, category});
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            log.error("Unable to store item. Error - {}", e.getMessage());
+            throw new ApplicationException(e.getMessage());
         }
-
-        return result;
     }
 
     @Override
-    public List<CategoryModel> getAllCategory() {
-        List<CategoryModel> categoryList = null;
-
-        try {
-            categoryList = jdbcTemplate.query(ItemQuery.GET_ALL_CATEGORY, new CategoryMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return categoryList;
-    }
-
-    @Override
-    public boolean insertSubCategory(CategoryModel category) {
-        int rowsInserted = 0;
-
-        try {
-            for (SubCategoryModel subcategory : category.getSubcategory()) {
-                rowsInserted += jdbcTemplate.update(ItemQuery.INSERT_SUB_CATEGORY, new Object[]{
-                        subcategory.getSubcategoryName(), subcategory.getDescription(), subcategory.getImgUrl(), category.getCategoryName()});
-            }
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-        return rowsInserted == 0 ? false : true;
-    }
-
-    @Override
-    public boolean insertSubCategoryProperty(CategoryModel category) {
-        int rowsInserted = 0;
-
-        try {
-            for (SubCategoryModel subcategory : category.getSubcategory()) {
-                for (SubCategoryProperty property : subcategory.getProperties()) {
-                    rowsInserted += jdbcTemplate.update(ItemQuery.INSERT_SUB_CATEGORY_PROPERTY,
-                            new Object[]{property.getName(), property.getType(), property.getUnit(),
-                                    subcategory.getSubcategoryName()});
-                }
-            }
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-        return rowsInserted == 0 ? false : true;
-    }
-
-    @Override
-    public boolean updateSubCategory(CategoryModel category) {
-        int rowsUpdated = 0;
-
-        try {
-            for (SubCategoryModel subcategory : category.getSubcategory()) {
-                rowsUpdated += jdbcTemplate.update(ItemQuery.UPDATE_SUB_CATEGORY,
-                        new Object[]{subcategory.getSubcategoryName(), subcategory.getDescription(),
-                                subcategory.getSubcategoryName(), category.getCategoryName()});
-            }
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-        return rowsUpdated == 0 ? false : true;
-    }
-
-    @Override
-    public boolean updateSubCategoryProperty(CategoryModel category) {
-        int rowsUpdated = 0;
-
-        try {
-            for (SubCategoryModel subcategory : category.getSubcategory()) {
-                for (SubCategoryProperty property : subcategory.getProperties()) {
-                    rowsUpdated += jdbcTemplate.update(ItemQuery.UPDATE_SUB_CATEGORY_PROPERTY,
-                            new Object[]{property.getName(), property.getType(), property.getUnit(),
-                                    property.getName(), subcategory.getSubcategoryName()});
-                }
-            }
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-        return rowsUpdated == 0 ? false : true;
-    }
-
-    @Override
-    public CategoryModel getAllSubCategory(String categoryName) {
-
-        CategoryModel subcategory = new CategoryModel();
-
-        try {
-            subcategory = jdbcTemplate.queryForObject(ItemQuery.GET_ALL_SUB_CATEGORY, new Object[]{categoryName},
-                    new SubCategoryMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return subcategory;
-    }
-
-    @Override
-    public boolean registerItem(ItemModel item) {
-        int rowsInserted = 0;
-
-        try {
-            rowsInserted = jdbcTemplate.update(ItemQuery.INSERT_ITEM,
-                    new Object[]{item.getItemName(), item.getImgUrl(), item.getSubcategoryName()});
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return rowsInserted == 0 ? false : true;
-    }
-
-    @Override
-    public boolean registerItemProperty(ItemModel item) {
-        int rowsInserted = 0;
-
+    public void insertItemProperty(String category, String subcategory, ItemModel item) {
         try {
             for (ItemProperty prop : item.getItemProperty()) {
-                rowsInserted += jdbcTemplate.update(ItemQuery.INSERT_ITEM_PROPERTY, new Object[]{prop.getValue(),
-                        item.getItemName(), prop.getName(), item.getSubcategoryName(), item.getCategoryName()});
+                jdbcTemplate.update(ItemQuery.INSERT_ITEM_PROPERTY, new Object[]{prop.getValue(),
+                        item.getItemName(), prop.getName(), subcategory, category});
             }
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            log.error("Unable to store item properties. Error - {}", e.getMessage());
+            throw new ApplicationException(e.getMessage());
         }
-
-        return rowsInserted == 0 ? false : true;
     }
 
     @Override
-    public List<SubCategoryProperty> getItemTemplate(ItemModel item) {
-        List<SubCategoryProperty> templateList = null;
-
+    public List<ItemModel> fetchAllItems(String category, String subcategory, int limit, int offset) {
         try {
-            templateList = jdbcTemplate.query(ItemQuery.GET_ITEM_TEMPLATE,
-                    new Object[]{item.getSubcategoryName(), item.getCategoryName()}, new ItemtemplateMapper());
+            return jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS, new Object[]{subcategory, category, limit, offset}, new ItemMapper());
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            log.error("Unable to fetch items from database. Error - {}", e.getMessage());
+            throw new ApplicationException(e.getMessage());
         }
-
-        return templateList;
     }
 
     @Override
-    public List<ItemModel> getAllItems(ItemModel item) {
+    public ItemModel getItemDetails(int itemId) {
+        try {
+            return jdbcTemplate.queryForObject(ItemQuery.GET_ITEM_DETAILS, new Object[]{itemId}, new ItemDetailsMapper());
+        } catch (DataAccessException e) {
+            log.error("Unable to fetch item details from database. Error - {}", e.getMessage());
+            throw new ApplicationException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean checkHasMoreItems(String category, String subcategory, int limit, int offset) {
         List<ItemModel> itemList = null;
 
         try {
-            itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS, new Object[]{item.getSubcategoryName(),
-                    item.getCategoryName(), item.getLimit(), item.getOffset()}, new ItemMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return itemList;
-    }
-
-    @Override
-    public ItemModel getItemDetails(ItemModel item) {
-        ItemModel itemVO = null;
-
-        try {
-            itemVO = jdbcTemplate.queryForObject(ItemQuery.GET_ITEM_DETAILS, new Object[]{item.getItemId()},
-                    new ItemDetailsMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return itemVO;
-    }
-
-    @Override
-    public boolean insertItemToCart(ItemModel item) {
-        int rowsInserted = 0;
-
-        try {
-            rowsInserted += jdbcTemplate.update(ItemQuery.INSERT_ITEM_TO_CART, new Object[]{item.getQuantity(),
-                    item.getItemId(), item.getEmail()});
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return rowsInserted == 0 ? false : true;
-    }
-
-    @Override
-    public List<ItemModel> getItemsFromCart(ItemModel item) {
-        List<ItemModel> itemsList = null;
-
-        try {
-            itemsList = jdbcTemplate.query(ItemQuery.GET_ALL_CART_ITEMS, new Object[]{item.getEmail()}, new CartItemMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return itemsList;
-    }
-
-    @Override
-    public boolean deleteItemFromCart(ItemModel item) {
-        int rowsDeleted = 0;
-
-        try {
-            rowsDeleted += jdbcTemplate.update(ItemQuery.DELETE_ITEM_FROM_CART, new Object[]{item.getItemId(), item.getEmail()});
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return rowsDeleted == 0 ? false : true;
-    }
-
-    @Override
-    public boolean updateItemQtyInCart(ItemModel item) {
-        int rowsUpdated = 0;
-
-        try {
-            rowsUpdated += jdbcTemplate.update(ItemQuery.UPDATE_ITEM_FROM_CART, new Object[]{item.getQuantity(), item.getItemId(), item.getEmail()});
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return rowsUpdated == 0 ? false : true;
-    }
-
-    @Override
-    public boolean placeOrder(ItemModel item) {
-
-        jdbcTemplate.update("CALL place_order(?)", item.getEmail());
-
-        return true;
-    }
-
-    @Override
-    public boolean updateOrder(OrderModel order) {
-        int rowsUpdated = 0;
-
-        try {
-            rowsUpdated += jdbcTemplate.update(ItemQuery.UPDATE_ORDER_STATUS, new Object[]{order.getOrderStatus(), order.getItemId(), order.getEmail()});
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return rowsUpdated == 0 ? false : true;
-    }
-
-    @Override
-    public List<ItemModel> getAllUserOrder(ItemModel order) {
-        List<ItemModel> orders = null;
-
-        try {
-            orders = jdbcTemplate.query(ItemQuery.GET_ALL_ORDERS_FOR_USER, new Object[]{order.getEmail()}, new OrderUserMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return orders;
-    }
-
-    @Override
-    public boolean itemExistsInCart(ItemModel item) {
-        boolean itemExists = false;
-
-        try {
-            itemExists = jdbcTemplate.queryForObject(ItemQuery.CHECK_ITEM_EXISTS_IN_CART, Boolean.class, new Object[]{item.getItemId(), item.getEmail()});
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return itemExists;
-    }
-
-    @Override
-    public List<ItemModel> getAllAdminOrder(ItemModel order) {
-        List<ItemModel> orders = null;
-
-        try {
-            orders = jdbcTemplate.query(ItemQuery.GET_ALL_ORDERS_FOR_ADMIN, new OrderUserMapper());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-
-        return orders;
-    }
-
-    @Override
-    public boolean updateOrderAdmin(ItemModel order) {
-        int orderUpdated = 0;
-
-        try {
-            orderUpdated = jdbcTemplate.update(ItemQuery.UPDATE_ORDER_STATUS_ADMIN, new Object[]{order.getOrderStatus(), order.getInvoiceNumber()});
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return orderUpdated == 1 ? true : false;
-    }
-
-    @Override
-    public boolean checkHasMoreItems(ItemModel item) {
-        List<ItemModel> itemList = null;
-
-        try {
-            itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS, new Object[]{item.getSubcategoryName(),
-                    item.getCategoryName(), item.getLimit(), item.getOffset() + item.getLimit()}, new ItemMapper());
+            itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS, new Object[]{subcategory, category, limit, offset + limit}, new ItemMapper());
         } catch (DataAccessException e) {
             e.printStackTrace();
         }
@@ -342,28 +82,26 @@ public class ItemDAOImpl implements ItemDAO {
 
     @Override
     public int getLatestItemId() {
-        int itemId = 0;
 
         try {
-            itemId = jdbcTemplate.queryForObject(ItemQuery.GET_LATEST_ITEM_ID, Integer.class);
+            return jdbcTemplate.queryForObject(ItemQuery.GET_LATEST_ITEM_ID, Integer.class);
         } catch (DataAccessException | NullPointerException e) {
             //Fresh Item table inserting first item into table
-            e.printStackTrace();
+            log.warn("First item into item table");
+            return 0;
         }
-
-        return itemId;
     }
 
     @Override
     public CategoryModel getAllSubCategoryForAdmin(String categoryName) {
         CategoryModel subcategory = null;
 
-        try {
+       /* try {
             subcategory = jdbcTemplate.queryForObject(ItemQuery.GET_ALL_SUB_CATEGORY_FOR_ADMIN, new Object[]{categoryName},
                     new SubCategoryMapper());
         } catch (DataAccessException e) {
             e.printStackTrace();
-        }
+        }*/
 
         return subcategory;
     }
@@ -382,30 +120,23 @@ public class ItemDAOImpl implements ItemDAO {
     }
 
     @Override
-    public List<ItemModel> getAllItemsAdmin(ItemModel item) {
-        List<ItemModel> itemList = null;
-
+    public List<ItemModel> getAllItemsAdmin(String category, String subcategory) {
         try {
-            itemList = jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS_ADMIN, new Object[]{item.getSubcategoryName(),
-                    item.getCategoryName()}, new ItemMapper());
+            return jdbcTemplate.query(ItemQuery.GET_ALL_ITEMS_ADMIN, new Object[]{subcategory, category}, new ItemMapper());
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            log.error("Failed to get all items for admin. Exception: {}", e.getMessage());
+            throw new ApplicationException("Failed to get all items for admin.");
         }
-
-        return itemList;
     }
 
     @Override
-    public boolean enableDisableItem(String itemId, boolean hidden) {
-        int recordsUpdated = 0;
-
+    public void enableDisableItem(String itemId, boolean enabled) {
         try {
-            recordsUpdated = jdbcTemplate.update(ItemQuery.ENABLE_DISABLE_ITEM, hidden == true ? 0 : 1, itemId);
+            jdbcTemplate.update(ItemQuery.ENABLE_DISABLE_ITEM, enabled == true ? 1 : 0, itemId);
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            log.error("Failed to enable/disable item. ItemId: {}, Exception: {}", itemId, e.getMessage());
+            throw new ApplicationException("Failed to enable/disable item.");
         }
-
-        return recordsUpdated > 0 ? true : false;
     }
 
     @Override
@@ -422,17 +153,13 @@ public class ItemDAOImpl implements ItemDAO {
     }
 
     @Override
-    public boolean deleteItem(String itemId) {
-        int recordsDeleted = 0;
-
+    public void deleteItem(String itemId) {
         try {
-            recordsDeleted = jdbcTemplate.update(ItemQuery.DELETE_ITEM, itemId);
+            jdbcTemplate.update(ItemQuery.DELETE_ITEM, itemId);
         } catch (DataAccessException e) {
-            e.printStackTrace();
+            log.error("Failed to delete item: {}, Exception: {}", itemId, e.getMessage());
+            throw new ApplicationException("Failed to delete item.");
         }
-
-        return recordsDeleted > 0 ? true : false;
-
     }
 
     @Override
@@ -442,7 +169,7 @@ public class ItemDAOImpl implements ItemDAO {
 
         try {
             recordsInserted = jdbcTemplate.update(ItemQuery.INSERT_NOTIFICATION,
-                    new Object[]{Constants.READ_NO, Constants.READ_NO, item.getEmail(), item.getItemId()});
+                    new Object[]{Constants.READ_NO, Constants.READ_NO, "email", item.getItemId()});
         } catch (DataAccessException e) {
             e.printStackTrace();
         }

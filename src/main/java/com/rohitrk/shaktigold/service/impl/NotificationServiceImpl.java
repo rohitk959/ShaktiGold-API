@@ -37,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService{
 		
 		if(!notify.isEmpty()) {
 			for(NotificationModel notification : notify) {
-				notification.setItem(itemService.getItemDetails(notification.getItem()));
+				notification.setItem(itemService.getItemDetails(1));
 			}
 		}
 		

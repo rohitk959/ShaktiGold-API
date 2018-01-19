@@ -3,28 +3,25 @@ package com.rohitrk.shaktigold.dao;
 import com.rohitrk.shaktigold.model.UserAccountModel;
 import com.rohitrk.shaktigold.model.UserDetailsModel;
 
+import java.util.List;
+
 public interface UserDAO {
 
 	UserAccountModel getSingleUserByEmail(String email);
 
-	boolean registerSingleUser(UserAccountModel userAccount);
+	void registerSingleUser(UserAccountModel userAccount);
 
-	boolean insertUserProfile(UserAccountModel userAccount);
+	void insertUserProfile(UserAccountModel userAccount);
 
-	boolean updateUserProfile(UserAccountModel userAccount);
-
-	boolean createUserSession(String email, String sessionId);
-
-	void deleteUserSession(String email);
-
-	String getUserSession(String email);
+	void updateUserProfile(UserDetailsModel userDetails, String email);
 
 	UserDetailsModel getSingleUserProfileByEmail(String email);
 
-	boolean updatePassword(UserAccountModel userAccount);
+	void updatePassword(String newEncryptedPassword, String email);
 
-	String getEmailByInvoiceNumber(String invoiceNumber);
+	String getEmailByInvoiceNumber(int invoiceNumber);
 
 	UserDetailsModel getSingleUserProfileByMobile(String mobileNumber);
 
+    void insertUserRoles(String email, String... userRoles);
 }

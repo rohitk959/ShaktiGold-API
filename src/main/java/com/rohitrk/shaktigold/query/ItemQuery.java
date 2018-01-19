@@ -14,13 +14,13 @@ public class ItemQuery {
 	
 	public static final String INSERT_SUB_CATEGORY_PROPERTY = "INSERT INTO shaktigold.subcategory_property (property_name, property_type, property_unit, subcategory_fk) VALUES (?, ?, ?, (SELECT id FROM shaktigold.subcategory WHERE subcategory_name = ?))";
 
-	public static final String GET_ALL_SUB_CATEGORY = "SELECT cat.category_name category_name, cat.description category_description, scat.subcategory_name subcategory_name, scat.description subcategory_description, scat.img_url img_url, scat.record_active subcategory_record_active FROM shaktigold.category cat INNER JOIN shaktigold.subcategory scat on cat.id = scat.category_fk WHERE cat.category_name = ? AND scat.record_active = 1 ";
+	public static final String GET_ALL_SUB_CATEGORY = "SELECT scat.subcategory_name, scat.description, scat.img_url, scat.record_active FROM shaktigold.category cat INNER JOIN shaktigold.subcategory scat on cat.id = scat.category_fk WHERE cat.category_name = ? AND scat.record_active = 1 ";
 
-	public static final String INSERT_ITEM = "INSERT INTO shaktigold.item (item_name, img_url, subcategory_fk) VALUES (?, ?, (SELECT id FROM shaktigold.subcategory WHERE subcategory_name = ?))";
+	public static final String INSERT_ITEM = "INSERT INTO shaktigold.item (item_name, img_url, subcategory_fk) VALUES (?, ?, (SELECT id FROM shaktigold.subcategory sub WHERE sub.subcategory_name = ? AND sub.category_fk = (select id from shaktigold.category where category_name = ?)))";
 
 	public static final String INSERT_ITEM_PROPERTY = "INSERT INTO shaktigold.item_property (property_value, item_fk, subcategory_property_fk) VALUES (?, (SELECT id FROM shaktigold.item WHERE item_name = ?), (SELECT sprop.id FROM shaktigold.subcategory_property sprop INNER JOIN shaktigold.subcategory scat on sprop.subcategory_fk = scat.id INNER JOIN shaktigold.category cat on scat.category_fk = cat.id WHERE sprop.property_name = ? AND scat.subcategory_name = ? AND cat.category_name = ?))";
 
-	public static final String GET_ITEM_TEMPLATE = "SELECT sprop.property_name property_name, sprop.property_type property_type, sprop.property_unit property_unit FROM shaktigold.subcategory_property sprop INNER JOIN shaktigold.subcategory scat on sprop.subcategory_fk = scat.id INNER JOIN shaktigold.category cat on scat.category_fk = cat.id WHERE scat.subcategory_name = ? AND cat.category_name = ?";
+	public static final String GET_ITEM_TEMPLATE = "SELECT sprop.property_name name, sprop.property_type type, sprop.property_unit unit FROM shaktigold.subcategory_property sprop INNER JOIN shaktigold.subcategory scat on sprop.subcategory_fk = scat.id INNER JOIN shaktigold.category cat on scat.category_fk = cat.id WHERE scat.subcategory_name = ? AND cat.category_name = ?";
 
 	public static final String GET_ALL_ITEMS = "SELECT item.item_name item_name, item.id item_id, item.img_url img_url, item.record_active as record_active FROM shaktigold.item item INNER JOIN shaktigold.subcategory scat ON item.subcategory_fk = scat.id INNER JOIN shaktigold.category cat ON scat.category_fk = cat.id WHERE scat.subcategory_name = ? AND cat.category_name = ? AND item.record_active = 1 ORDER BY item.id LIMIT ? OFFSET ?";
 
@@ -54,7 +54,7 @@ public class ItemQuery {
 
 	public static final String ENABLE_DISABLE_ITEM = "UPDATE shaktigold.item SET record_active = ? WHERE id = ?";
 
-	public static final String DELETE_SUBCATEGORY = "DELETE FROM shaktigold.subcategory WHERE subcategory_name = ?";
+	public static final String DELETE_SUBCATEGORY = "DELETE FROM shaktigold.subcategory WHERE subcategory_name = ? AND category_fk = (SELECT id FROM category WHERE category_name = ?)";
 	
 	public static final String DELETE_ITEM = "DELETE FROM shaktigold.item WHERE id = ?";
 
